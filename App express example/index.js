@@ -6,9 +6,12 @@ app.use(express.static('public'))
 app.use(express.urlencoded( { extended : true }))
 app.use(express.json())
 
+app.set('view engine', 'ejs');
+
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '/home.html'))
+    res.render('home')
 })
+
 /////////ROUTES/////////////////////////////////
 const login = require('./routes/login')
 app.use('/login', login)
