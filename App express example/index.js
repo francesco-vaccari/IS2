@@ -1,5 +1,4 @@
 const express = require('express')
-const path = require('path')
 const app = express()
 
 app.use(express.static('public'))
@@ -21,6 +20,12 @@ app.use('/signup', signup)
 
 const profile = require('./routes/profile')
 app.use('/profile', profile)
+
+const creazionetorneo = require('./routes/creazioneTorneo')
+app.use('/creazioneTorneo', creazionetorneo)
+
+const torneo = require('./routes/torneo')
+app.use('/torneo', torneo)
 ///////////////////////////////////////////////
 
 

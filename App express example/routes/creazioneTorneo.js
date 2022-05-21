@@ -2,13 +2,12 @@ const express = require('express')
 const router = express.Router()
 
 router.get('/', (req, res) => {
-    res.render('login')
+    res.render('creazioneTorneo')
 })
 
 router.post('/', (req, res) => {
-    var username = req.body.username
-    var password = req.body.password
-    res.redirect('/')
+    var nameTourney = req.body.nameTourney
+    res.redirect('/torneo/' + nameTourney)
 })
 
 module.exports = router
