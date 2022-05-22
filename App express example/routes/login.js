@@ -10,7 +10,6 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
     const user = User.findOne({ "username": req.body.username, "password": req.body.password }, 'username', (err, result) => {
         if(isNull(result)){
-            console.log(err)
             res.redirect('/login')
         } else {
             res.redirect('/')
