@@ -1,4 +1,6 @@
 const express = require('express')
+const { isNull } = require('url/util')
+const User = require('../models/User')
 const router = express.Router()
 
 router.get('/', (req, res) => {
@@ -6,9 +8,15 @@ router.get('/', (req, res) => {
 })
 
 router.post('/', (req, res) => {
-    var username = req.body.username
-    var password = req.body.password
-    res.redirect('/')
+    const user = User.findOne({ "username": req.body.username, "password": req.body.password }, 'username', (err, result) => {
+        if(isNull(result)){
+            console.log(err)
+            res.redirect('/login')
+        } else {
+            res.redirect('/')
+        }
+    })
+    
 })
 
 module.exports = router

@@ -1,14 +1,21 @@
 const express = require('express')
 const router = express.Router()
+const User = require('../models/User')
 
 router.get('/', (req, res) => {
     res.render('signup')
 })
 
 router.post('/', (req, res) => {
-    var username = req.body.username
-    var password = req.body.password
-    res.redirect('/profile/' + username)
+    const user = new User({
+        username: req.body.username,
+        password: req.body.password
+    })
+    user.save()
+    .then(data => {
+        res.redirect('/profile/' + req.body.username)
+    })
+    
 })
 
 module.exports = router
