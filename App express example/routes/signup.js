@@ -4,7 +4,7 @@ const { isNull } = require('url/util')
 const User = require('../models/User')
 
 router.get('/', (req, res) => {
-    res.render('signup', { message: req.query.message, username: req.query.username, password: req.query.password })
+    res.render('signup', { message: req.query.message, username: req.query.username})
 })
 
 router.post('/', (req, res) => {
