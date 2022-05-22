@@ -7,4 +7,4 @@ const TourneySchema = mongoose.Schema({
     private: Boolean
 })
 
-module.exports = mongoose.model('Tourneys', TourneySchema)
+module.exports = mongoose.model('Tuorney', TourneySchema)
