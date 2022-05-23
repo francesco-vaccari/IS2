@@ -42,7 +42,7 @@ router.delete('/', (req, res) => {
         } else {            
             User.deleteOne({ username: req.body.username, password: req.body.password }, (err, result) => {            
                 if(isNull(err)){
-                    res.status(204).json({ message: "Utente Eliminato"})
+                    res.status(204)
                 } else {
                     res.status(500).json({ message: "Server Error"})
                 }
