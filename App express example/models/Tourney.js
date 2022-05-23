@@ -2,8 +2,8 @@ const mongoose = require('mongoose')
 
 const TourneySchema = mongoose.Schema({
     name: String,
-    startingDate: Date,
-    endingDate: Date,
+    startingDate: String,
+    endingDate: String,
     private: Boolean
 })
 
