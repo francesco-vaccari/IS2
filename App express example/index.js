@@ -40,8 +40,11 @@ app.use('/torneo', torneo)
 ///////////////////////////////////////////////
 
 /////////API ROUTES/////////////////////////////
-const user = require('./api/v1/users.js')
-app.use('/api/v1/users', user)
+const users = require('./api/v1/users.js')
+app.use('/api/v1/users', users)
+
+const tourneys = require('./api/v1/tourneys.js')
+app.use('/api/v1/tourneys', tourneys)
 ///////////////////////////////////////////////
 
 

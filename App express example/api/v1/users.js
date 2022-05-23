@@ -1,12 +1,11 @@
 const express = require('express')
 const router = express.Router()
-const { isNull } = require('url/util')
+const { isNull, isNullOrUndefined } = require('url/util')
 const User = require('../../models/User')
 
 
 router.post('/', (req, res) => {
-    const check = User.findOne({ "username": req.body.username}, 'username', (err, result) => {
-        console.log(req.body.username)
+    User.findOne({ "username": req.body.username}, 'username', (err, result) => {
         if(isNull(result)){
             const user = new User({
                 username: req.body.username,
@@ -55,19 +54,24 @@ router.delete('/', (req, res) => {
 
 
 router.put('/', (req, res) => {
-    User.findOne({ username: req.body.username, password: req.body.password }, (err, result) => {
-        if(isNull(result)){
-            res.status(404).json({error: "Utente non modificato"})
-        } else {
-            User.replaceOne({ username: req.body.username, password: req.body.password }, { username: req.body.username, password: req.body.newPassword }, (err, result) => {
-                if(isNull(err)){
-                    res.status(200).json({ message: "Password aggiornata"})
-                } else {
-                    res.status(500).json({ message: "Server Error"})
-                }
-            })
-        }
-    })
+    if(isNullOrUndefined(req.body.newPassword) || req.body.newPassword == ""){
+        res.status(404).json({error: "Utente non modificato"})
+    } else {
+        User.findOne({ username: req.body.username, password: req.body.password }, (err, result) => {
+            if(isNull(result)){
+                res.status(404).json({error: "Utente non modificato"})
+            } else {
+                User.replaceOne({ username: req.body.username, password: req.body.password }, { username: req.body.username, password: req.body.newPassword }, (err, result) => {
+                    if(isNull(err)){
+                        res.status(200).json({ message: "Password aggiornata"})
+                    } else {
+                        res.status(500).json({ message: "Server Error"})
+                    }
+                })
+            }
+        })
+    }
+    
 })
 
 module.exports = router
