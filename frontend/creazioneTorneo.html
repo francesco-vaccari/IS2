@@ -43,30 +43,15 @@
     <div id="dataInizioTorneo">
     </div>
     <div id="dataFineTorneo">
-      <!--<div class="md-form md-outline input-with-post-icon datepicker">
-        <label for="example">Data fine Torneo</label>
-        <input placeholder="Select date" type="date" id="dataFine" class="form-control">
-      </div>-->
     </div>
-    <div id="apriIscrizioni">
+    <div id="apriIscrizioni" class="position-absolute bottom-1 end-0">
       <button type="button" onclick="">Apri iscrizioni</button>
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-  <script>
-    $.datepicker.regional['it'] = {
-    monthNames: ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',   'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'], // set month names
-    monthNamesShort: ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'], // set short month names
-    dayNames: ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'], // set days names
-    dayNamesShort: ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'], // set short day names
-    dayNamesMin: ['Do','Lu','Ma','Me','Gio','Ve','Sa'], // set more short days names
-    dateFormat: 'dd/mm/yy' // set format date
-};
-$.datepicker.setDefaults($.datepicker.regional['it']);
-$("#dataInizioTorneo").datepicker();
-  </script>
+  <script src="creazioneTorneo.js"></script>
 </body>
 </html> 
 
