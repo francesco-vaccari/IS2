@@ -39,5 +39,10 @@ const torneo = require('./routes/torneo')
 app.use('/torneo', torneo)
 ///////////////////////////////////////////////
 
+/////////API ROUTES/////////////////////////////
+const user = require('./api/v1/user.js')
+app.use('/api/v1/user', user)
+///////////////////////////////////////////////
+
 
 app.listen(3000)

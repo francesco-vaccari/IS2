@@ -8,7 +8,6 @@ router.get('/', (req, res) => {
 })
 
 router.post('/', (req, res) => {
-
     const check = User.findOne({ "username": req.body.username}, 'username', (err, result) => {
         if(isNull(result)){
             const user = new User({
@@ -23,8 +22,6 @@ router.post('/', (req, res) => {
             res.redirect('/signup?username=' + req.body.username + '&message=ERRORE: username già registrato')
         }
     })
-
-    
 })
 
 module.exports = router
