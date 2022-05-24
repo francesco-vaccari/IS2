@@ -1,0 +1,17 @@
+.divLeft {
+  position: fixed;
+  width: 30%;
+  left: 0;
+  height: 100%;
+  background-color: #008080;
+  z-index: 1010101010
+}
+
+.divRight {
+  position: fixed;
+  width: 70%;
+  left: 30%;
+  height: 100%;
+  background-color: #F5F5F5;
+  z-index: 1010101010
+}
