@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const TourneySchema = mongoose.Schema({
     name: {
         type: String,
-        required: [true, "cognome richiesto"]
+        required: [true, "nome richiesto"]
     },
     startingDate: {
         type: String,
@@ -25,4 +25,4 @@ const TourneySchema = mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model('Tuorney', TourneySchema)
+module.exports = mongoose.model('Tourney', TourneySchema)
