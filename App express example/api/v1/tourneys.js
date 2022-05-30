@@ -9,7 +9,7 @@ router.post('/', (req, res) => {
             const tourney = new Tourney({
                 name: req.body.name,
                 startingDate: req.body.startingDate,
-                endingDate: req.body.endindDate,
+                endingDate: req.body.endindgDate,
                 private: req.body.private
             })
             tourney.save()
