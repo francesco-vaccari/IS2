@@ -6,11 +6,11 @@ const TourneySchema = mongoose.Schema({
         required: [true, "nome richiesto"]
     },
     startingDate: {
-        type: Date,
+        type: Number,
         required: [true, "data inizio richiesta"]
     },
     endingDate: {
-        type: Date,
+        type: Number,
         required: [true, "data fine richiesta"]
     },
     private: Boolean,
