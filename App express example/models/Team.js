@@ -5,10 +5,10 @@ const TeamSchema = mongoose.Schema({
         type: String,
         required: [true, "nome squadra richiesto"]
     },
-    players: { 
+    players: [{ 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Player' 
-    }
-    })
+    }]
+})
     
     module.exports = mongoose.model('Team', TeamSchema)

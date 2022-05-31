@@ -8,8 +8,7 @@ const PlayerSchema = mongoose.Schema({
     surname: {
         type: String,
         required: [true, "cognome giocatore richiesto"]
-    },
-    id: Number
+    }
 })
 
 module.exports = mongoose.model('Player', PlayerSchema)
