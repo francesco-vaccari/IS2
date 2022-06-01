@@ -9,6 +9,10 @@ const UserSchema = mongoose.Schema({
         type: String,
         required: [true, "pwd richiesta"]
     },
+    player: {
+        type: String,
+        ref: "Player"
+    }
 })
 
 module.exports = mongoose.model('User', UserSchema)

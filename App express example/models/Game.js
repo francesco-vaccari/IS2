@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const GameSchema = mongoose.Schema({
-    date: Date,
+    date: Number,
     teamUno: { // https://mongoosejs.com/docs/populate.html
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Team' 
@@ -12,4 +12,4 @@ const GameSchema = mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model('Player', GameSchema)
+module.exports = mongoose.model('Game', GameSchema)

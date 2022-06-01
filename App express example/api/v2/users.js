@@ -14,7 +14,7 @@ router.post('/', (req, res) => {
             user.save()
             .then(data => {
                 let id = user.id
-                res.location('/api/v1/users/' + id).status(201).send()
+                res.location('/api/v2/users/' + id).status(201).send()
             })
         } else {
             res.status(409).json({ error: "Username già esistente" })
@@ -23,7 +23,7 @@ router.post('/', (req, res) => {
     })
 })
 
-
+/*
 router.get('/:id', (req, res) => {
     User.findById(req.params.id, 'username password', (err, result) => {
         if(isNull(err)){
@@ -33,7 +33,7 @@ router.get('/:id', (req, res) => {
         }
     })
 })
-
+*/
 
 //nella delete non usiamo l'id per cancellare gli utenti perchè vogliamo che inseriscano la password per evitare che venga eliminata gente a caso
 router.delete('/', (req, res) => {
