@@ -24,6 +24,7 @@ router.post('/', (req, res) => {
     })    
 })
 
+//api/v2/tourneys/nomeTorneo
 router.get('/:id', (req, res) => {
     Tourney.findById(req.params.id, 'name startingDate endingDate private', (err, result) => {
         if(isNull(err)){
