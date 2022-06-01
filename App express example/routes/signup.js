@@ -8,8 +8,8 @@ router.get('/', (req, res) => {
 })
 
 router.post('/', (req, res) => {
-    if(req.body.username == "") {
-      res.redirect('/signup?message=ERRORE: username vuoto') 
+    if(req.body.username == "" || req.body.password == "") {
+      res.redirect('/signup?message=ERRORE: username o password vuoti') 
       return
     }
     const check = User.findOne({ "username": req.body.username}, 'username', (err, result) => {
