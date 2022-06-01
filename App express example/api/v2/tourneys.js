@@ -11,10 +11,52 @@ router.post('/', (req, res) => {
         return
     } else {
         //creare risorsa e inserirla nel db
+        const tourney = new Tourney({
+            name: result.name, 
+            startingDate: result.startingDate, 
+            endingDate: result.endingDate,
+            private: Boolean,
+            format: String,
+            teams: []
+        })
+        tourney.save()
+        .then(data => {
+            let id = tourney.id
+            res.location('/api/v2/tourneys/' + id).status(201).send()
+        })
         console.log("TUTTO OK")
         res.status(200).json({ message: "ok" })
     }
 })
+
+router.get('/:name', (req, res) => {
+    Tourney.findById(req.params.id, 'name startingDate endingDate', (err, result) => {
+        if(isNull(err)){
+            res.status(200).json({ name: result.name, startingDate: result.startingDate, endingDate: result.endingDate})
+        } else {
+            res.status(404).json({ error: "Torneo non trovato"})
+        }
+    })
+})
+
+//da modificare
+/*
+router.delete('/', (req, res) => {
+    Tourney.findOne({ username: req.body.username, password: req.body.password }, (err, result) => {
+        if(isNull(result)){
+            res.status(404).json({error: "Utente non eliminato"})
+        } else {            
+            User.deleteOne({ username: req.body.username, password: req.body.password }, (err, result) => {            
+                if(isNull(err)){
+                    res.status(204)
+                } else {
+                    res.status(500).json({ message: "Server Error"})
+                }
+            })
+        }
+    })
+})
+*/
 
 function validate(req){
     console.log(req.body)
