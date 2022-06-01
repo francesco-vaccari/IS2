@@ -3,6 +3,7 @@ const router = express.Router()
 const { isNull } = require('url/util')
 const Tourney = require('../../models/Tourney')
 const Team = require('../../models/Team')
+const Player = require('../../models/Player')
 
 router.post('/', (req, res) => {
     if(!validate(req)){
