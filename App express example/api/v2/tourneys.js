@@ -4,6 +4,7 @@ const { isNull } = require('url/util')
 const Tourney = require('../../models/Tourney')
 const Team = require('../../models/Team')
 const Player = require('../../models/Player')
+const User = require('../../models/User')
 
 router.post('/', (req, res) => {
     if(!validate(req)){
@@ -144,5 +145,42 @@ router.get('/', (req, res) => {
     })
 })
 */
+
+
+router.delete('/', (req, res) => {
+    if(!validateDelete(req)){
+        res.status(400).json({ error: "errore nei dati inseriti" })
+        return
+    } else {
+        Tourney.findOne({ name: req.body.name }, (err, result) => {
+            if(isNull(result)){
+                res.status(404).json({ error: "torneo non trovato"})
+                return
+            } else {
+                User.findOne({ _id: result.owner }, (err, result) => {
+                    if(isNull(result)){
+                        res.status(500).json({ error: "server error"})
+                        return
+                    } else {
+                        if(result.username == req.body.username && result.password == req.body.password){
+                            Tourney.deleteOne({ name: req.body.name }, (err, result) => {
+                                res.status(204).send()
+                                return
+                            })
+                        } else {
+                            res.status(400).json({ error: "credenziali errate" })
+                        }
+                    }
+                })
+            }
+        })
+    }
+})
+
+function validateDelete(req){
+    if(!req.body.hasOwnProperty('name') || !req.body.hasOwnProperty('username') || !req.body.hasOwnProperty('password')){return false}
+    return true
+}
+
 
 module.exports = router
