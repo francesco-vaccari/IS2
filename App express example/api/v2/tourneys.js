@@ -9,7 +9,6 @@ router.post('/', (req, res) => {
     if(!validate(req)){
         console.log("ERRORE")
         res.status(400).json({ error: "errore nei dati inseriti" })
-        return
     } else {
         //creare risorsa e inserirla nel db
         const tourney = new Tourney({

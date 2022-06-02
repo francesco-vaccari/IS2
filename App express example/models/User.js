@@ -9,8 +9,12 @@ const UserSchema = mongoose.Schema({
         type: String,
         required: [true, "pwd richiesta"]
     },
+    playerAssigned: {
+        type: String, //true o false ma se metto boolean non funzionano le query
+        require: [true, "playerAssigned richiesto"]
+    },
     player: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Player"
     }
 })
