@@ -52,6 +52,9 @@ app.use('/api/v2/games', games)
 const players = require('./api/v2/players.js')
 app.use('/api/v2/players', players)
 
+const teams = require('./api/v2/teams.js')
+app.use('/api/v2/teams', teams)
+
 ///////////////////////////////////////////////
 
 
