@@ -3,12 +3,12 @@ const router = express.Router()
 const { isNull } = require('url/util')
 const Tourney = require('../../models/Tourney')
 const Team = require('../../models/Team')
+const Player = require('../../models/Player')
 
 router.post('/', (req, res) => {
     if(!validate(req)){
         console.log("ERRORE")
         res.status(400).json({ error: "errore nei dati inseriti" })
-        return
     } else {
         //creare risorsa e inserirla nel db
         const tourney = new Tourney({
@@ -75,9 +75,74 @@ function validate(req){
     console.log("private ok")
     if(!Array.isArray(req.body.teams) || req.body.teams.length == 0){return false}
     console.log("teams ok")
-
+    
     return true
     
 }
+
+router.put('/', (req, res) => { //API per aggiungere giocatore al team di un torneo specifico
+    let teamId = [];
+    let playerId;
+    let arrTeams = [];
+    Tourney.findOne({"name": req.body.name}).populate("teams").exec((err, result) => { //cerca tutti i team corrispondenti al nome del torneo
+        if(err) { 
+            return handleError(err);
+        } else {
+            arrTeams = result.teams; //metto da parte i team trovati
+            for(let i=0; i<arrTeams.length; i++){ //cerco il nome del team che mi interessa tra i team di quel torneo
+                if(arrTeams[i].name==req.body.nameTeam) { 
+                    teamId[i] = arrTeams[i].id; // se trovo il team che mi interessa memorizzo il suo id
+                } 
+            } 
+        }
+        
+        Player.findOne({ name: req.body.playerName, surname: req.body.playerSurname }, (err, result) => { //cerco il player tramite il nome
+            if(err) { 
+                return handleError(err);
+            } else {
+                playerId = result.id; //mi tengo da parte l'id di quel player
+            }
+            Team.findOneAndUpdate( //inserisco il player al team che mi interessa
+            teamId,
+            { $push: { players: playerId } },
+            { upsert: true },
+            function(err, data) {
+            });
+        })
+    })
+    res.status(200).send();
+})
+
+/*
+router.get('/', (req, res) => {
+    
+    const team1 = new Team({
+        name: "team1"
+    })
+    const team2 = new Team({
+        name: "team2"
+    })
+    team1.save()
+    team2.save()
+    
+    const tourney = new Tourney({
+        name: "torneo",
+        startingDate: new Date("2022-06-01"),
+        endingDate: new Date("2022-06-10"),
+        private: true,
+        format: "boh",
+        teams: [],
+        games: []
+    })
+    
+    tourney.teams.push(team1)
+    tourney.teams.push(team2)
+    
+    tourney.save()
+    .then(data => {
+        console.log(tourney)
+    })
+})
+*/
 
 module.exports = router
