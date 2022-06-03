@@ -49,6 +49,22 @@ router.post('/', (req, res) => {
                                     })
                                 })
                             }
+                            /*console.log(counter)
+                            for(let i=0;i++;i<counter){
+                                let game = new Game({
+                                    //date: date come creare delle date per un calendario?
+                                    //come prendere tutti i team?
+                                    date: "2022-06-05",
+                                    team1: torneo.team[i],
+                                    team2: torneo.team[i+1]
+                                })
+                                game.save()
+                                .then(data => {
+                                    Tourney.updateOne({ _id: torneo._id }, { $push: { games: game._id } }, (err, result) => {
+                                        let a = 1
+                                    })
+                                })
+                            }*/
                             res.location('/api/v2/tourneys/' + req.body.name).status(201).send()
                             return
                         })
@@ -89,10 +105,12 @@ router.get('/:name', (req, res) => {
         if (isNull(result)) {
             res.status(404).json({ error: "Torneo non trovato" })  
         } else {
+            let startingDate = new Date(result.startingDate)
+            let endingDate = new Date(result.endingDate)
             res.status(200).json({
                 name: result.name,
-                startingDate: result.startingDate,
-                endingDate: result.endingDate, //date convertite in roba leggibile
+                startingDate: startingDate,
+                endingDate: endingDate, //date convertite in roba leggibile [OK]
                 private: result.Boolean,
                 format: result.String,
                 teams: result.teams, //deve ritornare i nomi dei team associati all'id
@@ -104,7 +122,7 @@ router.get('/:name', (req, res) => {
 
 //TODO
 router.get('/:nameTourney/:nameTeam', (req, res) => {
-
+    
 })
 
 
@@ -114,7 +132,7 @@ router.put('/', (req, res) => { //API per aggiungere giocatore al team di un tor
     let teamId = "";
     let playerId = "";
     let arrTeams = [];
-    User.findOne({"username": req.body.username, "password": req.body.password }).populate("player").exec((err, result) => {
+    User.findOne({"username": req.body.username, "password": req.body.password}).populate("player").exec((err, result) => {
         if(err) { 
             return handleError(err);
         } else if(isNullOrUndefined(result)) {
@@ -154,26 +172,31 @@ router.put('/', (req, res) => { //API per aggiungere giocatore al team di un tor
                                     return
                                 }
                                 else {
-                                    Team.findOneAndUpdate( //inserisco il player al team che mi interessa
-                                    { _id: teamId }, 
-                                    { $push: { players: playerId  } },
-                                    function (error, success) {
-                                        if (error) {
-                                            console.log(error);
+                                    Team.findById({ _id: teamId }, (err, team) => { 
+                                        if(!team.players.includes(playerId)) {
+                                            Team.updateOne( //inserisco il player al team che mi interessa
+                                            { _id: teamId }, 
+                                            { $push: { players: playerId  } },
+                                            function (error, success) {
+                                                if (error) {
+                                                    console.log(error);
+                                                    res.status(500).send();
+                                                } else {
+                                                    console.log(success);
+                                                    res.status(200).send();
+                                                    return
+                                                }
+                                            });
                                         } else {
-                                            console.log(success);
+                                            res.status(403).json({ error: "Giocatore già presente"})
                                         }
-                                    });
-                                    res.status(200).send();
-                                    return
-                                }
-                                
+                                    })
+                                }   
                             })
                         }
                     }
                 })
             }
-            
         }
     })
 })
@@ -227,6 +250,5 @@ function validateDelete(req){
     if(!req.body.hasOwnProperty('name') || !req.body.hasOwnProperty('username') || !req.body.hasOwnProperty('password')){return false}
     return true
 }
-
 
 module.exports = router
