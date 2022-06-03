@@ -10,23 +10,40 @@ router.post('/', (req, res) => {
         console.log("ERRORE")
         res.status(400).json({ error: "errore nei dati inseriti" })
     } else {
-        //creare risorsa e inserirla nel db
-        const tourney = new Tourney({
-            owner: req.body.owner,
-            name: req.body.name,
-            startingDate: req.body.startingDate,
-            endingDate: req.body.endingDate,
-            private: req.body.private,
-            format: req.body.format,
-            teams: req.body.teams
+        Tourney.findOne({ "name": req.body.name }, (err, result) => {
+            if (isNull(result)) {
+                User.findOne({ "username": req.body.username }, (err, result) => {
+                    if (isNull(result)) {
+                        res.status(404).json({ error: "Username errato" })
+                        return
+                    } else {
+                        //creare risorsa e inserirla nel db
+                        const tourney = new Tourney({
+                            owner: result.id,
+                            name: req.body.name,
+                            startingDate: req.body.startingDate,
+                            endingDate: req.body.endingDate,
+                            private: req.body.private,
+                            format: req.body.format,
+                            teams: [],
+                            games: []
+                        })
+                        tourney.save()
+                            .then(data => {
+                                let name = tourney.name
+                                res.location('/api/v2/tourneys/' + name).status(201).send()
+                            })
+                        //console.log("TUTTO OK")
+                        res.status(200).json({ message: "ok" })
+                        return
+                    }
+                })
+
+            } else {
+                res.status(409).json({ error: "Torneo già esistente" })
+                return
+            }
         })
-        tourney.save()
-            .then(data => {
-                let name = tourney.name
-                res.location('/api/v2/tourneys/' + name).status(201).send()
-            })
-        //console.log("TUTTO OK")
-        res.status(200).json({ message: "ok" })
     }
 })
 
