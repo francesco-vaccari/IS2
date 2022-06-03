@@ -6,40 +6,49 @@ const Team = require('../../models/Team')
 const Player = require('../../models/Player')
 
 router.post('/', (req, res) => {
-    if(!validate(req)){
+    if (!validatePost(req)) {
         console.log("ERRORE")
         res.status(400).json({ error: "errore nei dati inseriti" })
     } else {
         //creare risorsa e inserirla nel db
         const tourney = new Tourney({
-            name: result.name, 
-            startingDate: result.startingDate, 
-            endingDate: result.endingDate,
-            private: Boolean,
-            format: String,
-            teams: []
+            owner: req.body.owner,
+            name: req.body.name,
+            startingDate: req.body.startingDate,
+            endingDate: req.body.endingDate,
+            private: req.body.private,
+            format: req.body.format,
+            teams: req.body.teams
         })
         tourney.save()
-        .then(data => {
-            let id = tourney.id
-            res.location('/api/v2/tourneys/' + id).status(201).send()
-        })
-        console.log("TUTTO OK")
+            .then(data => {
+                let name = tourney.name
+                res.location('/api/v2/tourneys/' + name).status(201).send()
+            })
+        //console.log("TUTTO OK")
         res.status(200).json({ message: "ok" })
     }
 })
 
 router.get('/:name', (req, res) => {
-    Tourney.findById(req.params.id, 'name startingDate endingDate', (err, result) => {
-        if(isNull(err)){
-            res.status(200).json({ name: result.name, startingDate: result.startingDate, endingDate: result.endingDate})
+    Tourney.findOne({ "name": req.body.name }, (err, result) => {
+        if (isNull(err)) {
+            res.status(200).json({
+                name: result.name,
+                startingDate: result.startingDate,
+                endingDate: result.endingDate,
+                private: result.Boolean,
+                format: result.String,
+                teams: [],
+                games: []
+            })
         } else {
-            res.status(404).json({ error: "Torneo non trovato"})
+            res.status(404).json({ error: "Torneo non trovato" })
         }
     })
 })
 
-//da modificare
+//da modificare per il frenco
 /*
 router.delete('/', (req, res) => {
     Tourney.findOne({ username: req.body.username, password: req.body.password }, (err, result) => {
@@ -58,56 +67,57 @@ router.delete('/', (req, res) => {
 })
 */
 
-function validate(req){
+
+function validatePost(req) {
     console.log(req.body)
-    if(!req.body.hasOwnProperty('name') || !req.body.hasOwnProperty('startingDate') || !req.body.hasOwnProperty('endingDate') || !req.body.hasOwnProperty('private') || !req.body.hasOwnProperty('format') || !req.body.hasOwnProperty('teams')){console.log("qui");return false}
+    if (!req.body.hasOwnProperty('name') || !req.body.hasOwnProperty('startingDate') || !req.body.hasOwnProperty('endingDate') || !req.body.hasOwnProperty('private') || !req.body.hasOwnProperty('format') || !req.body.hasOwnProperty('teams')) { console.log("qui"); return false }
     console.log("body ok")
-    if(req.body.name == ""){return false}
+    if (req.body.name == "") { return false }
     console.log("name ok")
-    if(req.body.format == ""){return false}
+    if (req.body.format == "") { return false }
     console.log("format ok")
     let startingDate = new Date(req.body.startingDate)
     let endingDate = new Date(req.body.endingDate)
-    if(startingDate.toString() == "Invalid Date" || endingDate.toString() == "Invalid Date"){return false}
-    if(Date.now() > endingDate.getTime() || startingDate.getTime() > endingDate.getTime()){return false}
+    if (startingDate.toString() == "Invalid Date" || endingDate.toString() == "Invalid Date") { return false }
+    if (Date.now() > endingDate.getTime() || startingDate.getTime() > endingDate.getTime()) { return false }
     console.log("dates ok")
-    if(req.body.private != "true" && req.body.private != "false"){return false}
+    if (req.body.private != "true" && req.body.private != "false") { return false }
     console.log("private ok")
-    if(!Array.isArray(req.body.teams) || req.body.teams.length == 0){return false}
+    if (!Array.isArray(req.body.teams) || req.body.teams.length == 0) { return false }
     console.log("teams ok")
-    
     return true
-    
 }
+
+
 
 router.put('/', (req, res) => { //API per aggiungere giocatore al team di un torneo specifico
     let teamId = [];
     let playerId;
     let arrTeams = [];
-    Tourney.findOne({"name": req.body.name}).populate("teams").exec((err, result) => { //cerca tutti i team corrispondenti al nome del torneo
-        if(err) { 
+    Tourney.findOne({ "name": req.body.name }).populate("teams").exec((err, result) => { //cerca tutti i team corrispondenti al nome del torneo
+        if (err) {
             return handleError(err);
         } else {
             arrTeams = result.teams; //metto da parte i team trovati
-            for(let i=0; i<arrTeams.length; i++){ //cerco il nome del team che mi interessa tra i team di quel torneo
-                if(arrTeams[i].name==req.body.nameTeam) { 
+            for (let i = 0; i < arrTeams.length; i++) { //cerco il nome del team che mi interessa tra i team di quel torneo
+                if (arrTeams[i].name == req.body.nameTeam) {
                     teamId[i] = arrTeams[i].id; // se trovo il team che mi interessa memorizzo il suo id
-                } 
-            } 
+                }
+            }
         }
-        
+
         Player.findOne({ name: req.body.playerName, surname: req.body.playerSurname }, (err, result) => { //cerco il player tramite il nome
-            if(err) { 
+            if (err) {
                 return handleError(err);
             } else {
                 playerId = result.id; //mi tengo da parte l'id di quel player
             }
             Team.findOneAndUpdate( //inserisco il player al team che mi interessa
-            teamId,
-            { $push: { players: playerId } },
-            { upsert: true },
-            function(err, data) {
-            });
+                teamId,
+                { $push: { players: playerId } },
+                { upsert: true },
+                function (err, data) {
+                });
         })
     })
     res.status(200).send();
