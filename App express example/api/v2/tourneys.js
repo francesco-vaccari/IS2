@@ -6,6 +6,7 @@ const Tourney = require('../../models/Tourney')
 const Team = require('../../models/Team')
 const Player = require('../../models/Player')
 const User = require('../../models/User')
+const Game = require('../../models/Game')
 
 
 //aggiungere che crea le partite in modo automatico e aggiunge al documento
@@ -48,6 +49,22 @@ router.post('/', (req, res) => {
                                     })
                                 })
                             }
+                            /*console.log(counter)
+                            for(let i=0;i++;i<counter){
+                                let game = new Game({
+                                    //date: date come creare delle date per un calendario?
+                                    //come prendere tutti i team?
+                                    date: "2022-06-05",
+                                    team1: torneo.team[i],
+                                    team2: torneo.team[i+1]
+                                })
+                                game.save()
+                                .then(data => {
+                                    Tourney.updateOne({ _id: torneo._id }, { $push: { games: game._id } }, (err, result) => {
+                                        let a = 1
+                                    })
+                                })
+                            }*/
                             res.location('/api/v2/tourneys/' + req.body.name).status(201).send()
                             return
                         })
@@ -88,10 +105,12 @@ router.get('/:name', (req, res) => {
         if (isNull(result)) {
             res.status(404).json({ error: "Torneo non trovato" })  
         } else {
+            let startingDate = new Date(result.startingDate)
+            let endingDate = new Date(result.endingDate)
             res.status(200).json({
                 name: result.name,
-                startingDate: result.startingDate,
-                endingDate: result.endingDate, //date convertite in roba leggibile
+                startingDate: startingDate,
+                endingDate: endingDate, //date convertite in roba leggibile [OK]
                 private: result.Boolean,
                 format: result.String,
                 teams: result.teams, //deve ritornare i nomi dei team associati all'id
