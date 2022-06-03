@@ -49,14 +49,16 @@ router.post('/', (req, res) => {
                                     })
                                 })
                             }
-                            /*console.log(counter)
-                            for(let i=0;i++;i<counter){
+                            let increment = ((endingDate-startingDate)/((counter+1)*counter))
+                            let dataric = startingDate
+                            for(let i in counter){
+                                console.log(i)
+                                dataric = dataric + increment
+                                let gametime = new Date(dataric)
                                 let game = new Game({
-                                    //date: date come creare delle date per un calendario?
-                                    //come prendere tutti i team?
-                                    date: "2022-06-05",
-                                    team1: torneo.team[i],
-                                    team2: torneo.team[i+1]
+                                    date: gametime,
+                                    //teamUno: "puccio",
+                                    //teamDue: "gimmi"
                                 })
                                 game.save()
                                 .then(data => {
@@ -64,7 +66,8 @@ router.post('/', (req, res) => {
                                         let a = 1
                                     })
                                 })
-                            }*/
+                                console.log(i)
+                            }
                             res.location('/api/v2/tourneys/' + req.body.name).status(201).send()
                             return
                         })
