@@ -102,9 +102,31 @@ router.get('/:name', (req, res) => {
     })
 })
 
-//TODO
-router.get('/:nameTourney/:nameTeam', (req, res) => {
 
+
+router.get('/:nameTourney/:nameTeam', (req, res) => {
+    Tourney.findOne({ name: req.params.nameTourney }, (err, result) => {
+        if(isNull(result)){
+            res.status(404).json({ error: "torneo non trovato"})
+        } else {
+            let teamId = 1
+            const team = Team.findOne({ _id: teamId }, (err, result) => {
+                if(isNull(result)){
+                    res.status(404).json({ error: "team non trovato"})
+                } else {
+                    teamPlayers = []
+                for(counter in team.players){
+                    let p = Player.findOne({ _id: team.player[counter] })
+                    .then(data => {
+                        teamPlayers.push({ name: p.name, surname: p.surname })
+                    })
+                }
+                res.status(200).json({ name: team.name, players: teamPlayers})
+                }
+            })
+                
+        }
+    })
 })
 
 
