@@ -6,9 +6,9 @@ const Tourney = require('../../models/Tourney')
 const Team = require('../../models/Team')
 const Player = require('../../models/Player')
 const User = require('../../models/User')
+const Game = require('../../models/Game')
 
-
-//aggiungere che crea le partite in modo automatico e aggiunge al documento
+//TODO
 router.post('/', (req, res) => {
     if (!validatePost(req)) {
         res.status(400).json({ error: "errore nei dati inseriti" })
@@ -48,6 +48,25 @@ router.post('/', (req, res) => {
                                     })
                                 })
                             }
+                            let increment = ((endingDate-startingDate)/((counter+1)*counter)) //calcolo l'icremento per fissare le date delle partite in modo ordinato nell'intervallo
+                            let dataric = startingDate //fisso la data di partenza
+                            for(let i in counter){
+                                //console.log(i)
+                                let gametime = new Date(dataric) //la prima partita è il primo giorno di torneo
+                                let game = new Game({
+                                    date: gametime,
+                                    //teamUno: "puccio", //serve fare il casotto di prima tipo per l'owner
+                                    //teamDue: "gimmi"   //serve fare il casotto di prima tipo per l'owner
+                                })
+                                dataric = dataric + increment //incremento in modo da avere il giorno della prossima partita
+                                game.save()
+                                .then(data => {
+                                    Tourney.updateOne({ _id: torneo._id }, { $push: { games: game._id } }, (err, result) => { //copiato da sopra ma funziona
+                                        let a = 1
+                                    })
+                                })
+                                //console.log(i) //in questo punto si rompe il ciclo for infatti "0" è l'ultima cosa che stampa la console 
+                            }
                             res.location('/api/v2/tourneys/' + req.body.name).status(201).send()
                             return
                         })
@@ -82,33 +101,78 @@ function validatePost(req) {
 }
 
 
-
-router.get('/:name', (req, res) => {
-    Tourney.findOne({ "name": req.params.name }, (err, result) => {
-        if (isNull(result)) {
-            res.status(404).json({ error: "Torneo non trovato" })  
+router.get('/:nameTourney/:nameTeam', (req, res) => {
+    Tourney.findOne({ name: req.params.nameTourney }, (err, result) => {
+        if(isNull(result)){
+            res.status(404).json({ error: "torneo non trovato"})
+            return
         } else {
-            res.status(200).json({
-                name: result.name,
-                startingDate: result.startingDate,
-                endingDate: result.endingDate, //date convertite in roba leggibile
-                private: result.Boolean,
-                format: result.String,
-                teams: result.teams, //deve ritornare i nomi dei team associati all'id
-                games: result.games //deve tornate i dati del documenti associato all'id
+            torneo = result
+            Team.findOne( { name: req.params.nameTeam }, (err, result) => {
+                team = result
+                if(isNull(team)){
+                    res.status(404).json({ error: "team non trovato in db"})
+                    return
+                } else {
+                    if(torneo.teams.includes(team._id)){
+                        teamPlayers = []
+                        mut = 0
+                        if(team.players.length != 0){
+                            for(counter in team.players){
+                                Player.findOne({ _id: team.players[counter] }, (err, result) => {
+                                    teamPlayers.push({ name: result.name, surname: result.surname })
+                                    mut++
+                                    if(mut == team.players.length){
+                                        res.status(200).json({ name: team.name, players: teamPlayers})
+                                        return
+                                    }
+                                })
+                            }
+                        } else {
+                            res.status(200).json({ name: team.name, players: teamPlayers})
+                            return
+                        }
+                    } else {
+                        res.status(404).json({ error: "team non trovato in torneo"})
+                        return
+                    }
+                }
             })
         }
     })
 })
 
+
 //TODO
-router.get('/:nameTourney/:nameTeam', (req, res) => {
-    
+router.get('/:name', (req, res) => {
+    Tourney.findOne({ name: req.params.name }, (err, result) => {
+        if (isNull(result)) {
+            res.status(404).json({ error: "torneo non trovato" })
+            return
+        } else {
+            let startingDate = new Date(result.startingDate)
+            let endingDate = new Date(result.endingDate)
+
+            teams = []
+
+            res.status(200).json({
+                name: result.name,
+                startingDate: startingDate,
+                endingDate: endingDate,
+                private: result.private,
+                format: result.format,
+                teams: result.teams, //deve ritornare i nomi dei team associati all'id
+                games: result.games //deve tornate i dati del documenti associato all'id
+            })
+            return
+        }
+    })
 })
 
 
 
-//fare in modo che un giocatore non si può iscrivere più volte allo stesso team
+
+
 router.put('/', (req, res) => { //API per aggiungere giocatore al team di un torneo specifico
     let teamId = "";
     let playerId = "";
@@ -183,31 +247,40 @@ router.put('/', (req, res) => { //API per aggiungere giocatore al team di un tor
 })
 
 
-
-//eliminare documenti teams
-//eliminare documenti games
 router.delete('/', (req, res) => {
     if(!validateDelete(req)){
         res.status(400).json({ error: "errore nei dati inseriti" })
         return
     } else {
         Tourney.findOne({ name: req.body.name }, (err, result) => {
+            torneo = result
             if(isNull(result)){
                 res.status(404).json({ error: "torneo non trovato"})
                 return
             } else {
-                User.findOne({ _id: result.owner }, (err, result) => {
+                User.findOne({ _id: torneo.owner }, (err, result) => {
                     if(isNull(result)){
                         res.status(500).json({ error: "server error"})
                         return
                     } else {
                         if(result.username == req.body.username && result.password == req.body.password){
+                            for(counter in torneo.teams){
+                                Team.deleteOne({ _id: torneo.teams[counter] }, (err, result) => {
+                                    let a = 1
+                                })
+                            }
+                            for(counter in torneo.games){
+                                Game.deleteOne({ _id: torneo.games[counter] }, (err, result) => {
+                                    let a = 1
+                                })
+                            }
                             Tourney.deleteOne({ name: req.body.name }, (err, result) => {
                                 res.status(204).send()
                                 return
                             })
                         } else {
                             res.status(400).json({ error: "credenziali errate" })
+                            return
                         }
                     }
                 })
@@ -220,8 +293,5 @@ function validateDelete(req){
     if(!req.body.hasOwnProperty('name') || !req.body.hasOwnProperty('username') || !req.body.hasOwnProperty('password')){return false}
     return true
 }
-
-
-
 
 module.exports = router
