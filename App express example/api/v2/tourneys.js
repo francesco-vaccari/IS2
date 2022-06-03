@@ -294,5 +294,4 @@ function validateDelete(req){
     return true
 }
 
-
 module.exports = router
