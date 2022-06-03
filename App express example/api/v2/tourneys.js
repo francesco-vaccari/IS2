@@ -211,16 +211,27 @@ router.delete('/', (req, res) => {
         return
     } else {
         Tourney.findOne({ name: req.body.name }, (err, result) => {
+            torneo = result
             if(isNull(result)){
                 res.status(404).json({ error: "torneo non trovato"})
                 return
             } else {
-                User.findOne({ _id: result.owner }, (err, result) => {
+                User.findOne({ _id: torneo.owner }, (err, result) => {
                     if(isNull(result)){
                         res.status(500).json({ error: "server error"})
                         return
                     } else {
                         if(result.username == req.body.username && result.password == req.body.password){
+                            for(counter in torneo.teams){
+                                Team.deleteOne({ _id: torneo.teams[counter] }, (err, result) => {
+                                    let a = 1
+                                })
+                            }
+                            for(counter in torneo.games){
+                                Game.deleteOne({ _id: torneo.games[counter] }, (err, result) => {
+                                    let a = 1
+                                })
+                            }
                             Tourney.deleteOne({ name: req.body.name }, (err, result) => {
                                 res.status(204).send()
                                 return
@@ -239,8 +250,5 @@ function validateDelete(req){
     if(!req.body.hasOwnProperty('name') || !req.body.hasOwnProperty('username') || !req.body.hasOwnProperty('password')){return false}
     return true
 }
-
-
-
 
 module.exports = router

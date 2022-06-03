@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const User = require('./User')
 
 const TourneySchema = mongoose.Schema({
     owner: {
@@ -9,6 +10,11 @@ const TourneySchema = mongoose.Schema({
     name: {
         type: String,
         required: [true, "nome richiesto"]
+    },
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: User,
+        require: [true, "id creatore richiesto"]
     },
     startingDate: {
         type: Number,
