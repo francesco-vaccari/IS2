@@ -49,24 +49,24 @@ router.post('/', (req, res) => {
                                     })
                                 })
                             }
-                            let increment = ((endingDate-startingDate)/((counter+1)*counter))
-                            let dataric = startingDate
+                            let increment = ((endingDate-startingDate)/((counter+1)*counter)) //calcolo l'icremento per fissare le date delle partite in modo ordinato nell'intervallo
+                            let dataric = startingDate //fisso la data di partenza
                             for(let i in counter){
                                 console.log(i)
-                                dataric = dataric + increment
-                                let gametime = new Date(dataric)
+                                let gametime = new Date(dataric) //la prima partita è il primo giorno di torneo
                                 let game = new Game({
                                     date: gametime,
-                                    //teamUno: "puccio",
-                                    //teamDue: "gimmi"
+                                    //teamUno: "puccio", //serve fare il casotto di prima tipo per l'owner
+                                    //teamDue: "gimmi"   //serve fare il casotto di prima tipo per l'owner
                                 })
+                                dataric = dataric + increment //incremento in modo da avere il giorno della prossima partita
                                 game.save()
                                 .then(data => {
-                                    Tourney.updateOne({ _id: torneo._id }, { $push: { games: game._id } }, (err, result) => {
+                                    Tourney.updateOne({ _id: torneo._id }, { $push: { games: game._id } }, (err, result) => { //copiato da sopra ma funziona
                                         let a = 1
                                     })
                                 })
-                                console.log(i)
+                                console.log(i) //in questo punto si rompe il ciclo for infatti "0" è l'ultima cosa che stampa la console 
                             }
                             res.location('/api/v2/tourneys/' + req.body.name).status(201).send()
                             return
