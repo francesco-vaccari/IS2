@@ -8,8 +8,7 @@ const Player = require('../../models/Player')
 const User = require('../../models/User')
 const Game = require('../../models/Game')
 
-
-//aggiungere che crea le partite in modo automatico e aggiunge al documento
+//TODO
 router.post('/', (req, res) => {
     if (!validatePost(req)) {
         res.status(400).json({ error: "errore nei dati inseriti" })
@@ -49,6 +48,25 @@ router.post('/', (req, res) => {
                                     })
                                 })
                             }
+                            let increment = ((endingDate-startingDate)/((counter+1)*counter)) //calcolo l'icremento per fissare le date delle partite in modo ordinato nell'intervallo
+                            let dataric = startingDate //fisso la data di partenza
+                            for(let i in counter){
+                                //console.log(i)
+                                let gametime = new Date(dataric) //la prima partita è il primo giorno di torneo
+                                let game = new Game({
+                                    date: gametime,
+                                    //teamUno: "puccio", //serve fare il casotto di prima tipo per l'owner
+                                    //teamDue: "gimmi"   //serve fare il casotto di prima tipo per l'owner
+                                })
+                                dataric = dataric + increment //incremento in modo da avere il giorno della prossima partita
+                                game.save()
+                                .then(data => {
+                                    Tourney.updateOne({ _id: torneo._id }, { $push: { games: game._id } }, (err, result) => { //copiato da sopra ma funziona
+                                        let a = 1
+                                    })
+                                })
+                                //console.log(i) //in questo punto si rompe il ciclo for infatti "0" è l'ultima cosa che stampa la console 
+                            }
                             res.location('/api/v2/tourneys/' + req.body.name).status(201).send()
                             return
                         })
@@ -83,60 +101,83 @@ function validatePost(req) {
 }
 
 
-
-router.get('/:name', (req, res) => {
-    Tourney.findOne({ "name": req.params.name }, (err, result) => {
-        if (isNull(result)) {
-            res.status(404).json({ error: "Torneo non trovato" })  
-        } else {
-            res.status(200).json({
-                name: result.name,
-                startingDate: result.startingDate,
-                endingDate: result.endingDate, //date convertite in roba leggibile
-                private: result.Boolean,
-                format: result.String,
-                teams: result.teams, //deve ritornare i nomi dei team associati all'id
-                games: result.games //deve tornate i dati del documenti associato all'id
-            })
-        }
-    })
-})
-
-
-
 router.get('/:nameTourney/:nameTeam', (req, res) => {
     Tourney.findOne({ name: req.params.nameTourney }, (err, result) => {
         if(isNull(result)){
             res.status(404).json({ error: "torneo non trovato"})
+            return
         } else {
-            let teamId = 1
-            const team = Team.findOne({ _id: teamId }, (err, result) => {
-                if(isNull(result)){
-                    res.status(404).json({ error: "team non trovato"})
+            torneo = result
+            Team.findOne( { name: req.params.nameTeam }, (err, result) => {
+                team = result
+                if(isNull(team)){
+                    res.status(404).json({ error: "team non trovato in db"})
+                    return
                 } else {
-                    teamPlayers = []
-                for(counter in team.players){
-                    let p = Player.findOne({ _id: team.player[counter] })
-                    .then(data => {
-                        teamPlayers.push({ name: p.name, surname: p.surname })
-                    })
-                }
-                res.status(200).json({ name: team.name, players: teamPlayers})
+                    if(torneo.teams.includes(team._id)){
+                        teamPlayers = []
+                        mut = 0
+                        if(team.players.length != 0){
+                            for(counter in team.players){
+                                Player.findOne({ _id: team.players[counter] }, (err, result) => {
+                                    teamPlayers.push({ name: result.name, surname: result.surname })
+                                    mut++
+                                    if(mut == team.players.length){
+                                        res.status(200).json({ name: team.name, players: teamPlayers})
+                                        return
+                                    }
+                                })
+                            }
+                        } else {
+                            res.status(200).json({ name: team.name, players: teamPlayers})
+                            return
+                        }
+                    } else {
+                        res.status(404).json({ error: "team non trovato in torneo"})
+                        return
+                    }
                 }
             })
-                
+        }
+    })
+})
+
+
+//TODO
+router.get('/:name', (req, res) => {
+    Tourney.findOne({ name: req.params.name }, (err, result) => {
+        if (isNull(result)) {
+            res.status(404).json({ error: "torneo non trovato" })
+            return
+        } else {
+            let startingDate = new Date(result.startingDate)
+            let endingDate = new Date(result.endingDate)
+
+            teams = []
+
+            res.status(200).json({
+                name: result.name,
+                startingDate: startingDate,
+                endingDate: endingDate,
+                private: result.private,
+                format: result.format,
+                teams: result.teams, //deve ritornare i nomi dei team associati all'id
+                games: result.games //deve tornate i dati del documenti associato all'id
+            })
+            return
         }
     })
 })
 
 
 
-//fare in modo che un giocatore non si può iscrivere più volte allo stesso team
+
+
 router.put('/', (req, res) => { //API per aggiungere giocatore al team di un torneo specifico
     let teamId = "";
     let playerId = "";
     let arrTeams = [];
-    User.findOne({"username": req.body.username, "password": req.body.password }).populate("player").exec((err, result) => {
+    User.findOne({"username": req.body.username, "password": req.body.password}).populate("player").exec((err, result) => {
         if(err) { 
             return handleError(err);
         } else if(isNullOrUndefined(result)) {
@@ -176,34 +217,36 @@ router.put('/', (req, res) => { //API per aggiungere giocatore al team di un tor
                                     return
                                 }
                                 else {
-                                    Team.findOneAndUpdate( //inserisco il player al team che mi interessa
-                                    { _id: teamId }, 
-                                    { $push: { players: playerId  } },
-                                    function (error, success) {
-                                        if (error) {
-                                            console.log(error);
+                                    Team.findById({ _id: teamId }, (err, team) => { 
+                                        if(!team.players.includes(playerId)) {
+                                            Team.updateOne( //inserisco il player al team che mi interessa
+                                            { _id: teamId }, 
+                                            { $push: { players: playerId  } },
+                                            function (error, success) {
+                                                if (error) {
+                                                    console.log(error);
+                                                    res.status(500).send();
+                                                } else {
+                                                    console.log(success);
+                                                    res.status(200).send();
+                                                    return
+                                                }
+                                            });
                                         } else {
-                                            console.log(success);
+                                            res.status(403).json({ error: "Giocatore già presente"})
                                         }
-                                    });
-                                    res.status(200).send();
-                                    return
-                                }
-                                
+                                    })
+                                }   
                             })
                         }
                     }
                 })
             }
-            
         }
     })
 })
 
 
-
-//eliminare documenti teams
-//eliminare documenti games
 router.delete('/', (req, res) => {
     if(!validateDelete(req)){
         res.status(400).json({ error: "errore nei dati inseriti" })
@@ -237,6 +280,7 @@ router.delete('/', (req, res) => {
                             })
                         } else {
                             res.status(400).json({ error: "credenziali errate" })
+                            return
                         }
                     }
                 })
