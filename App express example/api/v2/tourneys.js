@@ -87,56 +87,51 @@ router.put('/', (req, res) => { //API per aggiungere giocatore al team di un tor
     let arrTeams = [];
     User.findOne({"username": req.body.username, "password": req.body.password }).populate("player").exec((err, result) => {
         if(err) { 
-            console.log(err);
+            return handleError(err);
         } else if(isNullOrUndefined(result)) {
             res.status(404).json({ error: "Giocatore non trovato"})
         } else {
             playerId = result.player.id
-            Tourney.findOne({"name": req.body.name}).populate("teams").exec((err, result) => { 
-                //console.log(req.body.name)//cerca tutti i team corrispondenti al nome del torneo
+            Tourney.findOne({"name": req.body.name}).populate("teams").exec((err, result) => { //cerca tutti i team corrispondenti al nome del torneo
                 if(err) { 
                     return handleError(err);
                 } else if(isNullOrUndefined(result)) {
                     res.status(404).json({ error: "Torneo non trovato"})
                 }
-                 else {
+                else {
                     arrTeams = result.teams; //metto da parte i team trovati
                     for(let i=0; i<arrTeams.length; i++){ //cerco il nome del team che mi interessa tra i team di quel torneo
                         if(arrTeams[i].name == req.body.nameTeam) { 
-                            teamId = arrTeams[i].id;
-                            console.log(teamId) // se trovo il team che mi interessa memorizzo il suo id
+                            teamId = arrTeams[i].id; // se trovo il team che mi interessa memorizzo il suo id
                         } 
-                        else if(arrTeams[i].name != req.body.nameTeam) {
-                            teamId = 0;
-                        }
                     } 
-                    //res.status(404).send("non trovato")
-                    if(teamId != 0) {
-                    Player.findById({ _id: playerId }, (err, result) => { //cerco il player tramite il nome
-                        if(err) { 
-                            return handleError(err);
-                        } 
-                        else if(isNullOrUndefined(result)) {
-                            res.status(404).json({ error: "Giocatore non trovato"})
-                        }
-                        else {
-                            
-                            Team.findOneAndUpdate( //inserisco il player al team che mi interessa
+                    if(teamId == "") {
+                        res.status(404).json({ error: "Team non trovato"})
+                    }
+                    else if(teamId != "") {
+                        Player.findById({ _id: playerId }, (err, result) => { //cerco il player tramite il nome
+                            if(err) { 
+                                return handleError(err);
+                            } 
+                            else if(isNullOrUndefined(result)) {
+                                res.status(404).json({ error: "Giocatore non trovato"})
+                            }
+                            else {
+                                Team.findOneAndUpdate( //inserisco il player al team che mi interessa
                                 { _id: teamId }, 
                                 { $push: { players: playerId  } },
-                               function (error, success) {
-                                     if (error) {
-                                         console.log(error);
-                                     } else {
-                                         console.log(success);
-                                     }
-                                 });
-                        }
-                        
-                    })
-                } else {
-                    res.status(404).send()
-                }
+                                function (error, success) {
+                                    if (error) {
+                                        console.log(error);
+                                    } else {
+                                        console.log(success);
+                                    }
+                                });
+                                res.status(200).send();
+                            }
+                            
+                        })
+                    }
                 }
             })
         }
