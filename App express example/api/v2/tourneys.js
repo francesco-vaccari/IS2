@@ -103,7 +103,7 @@ router.get('/:name', (req, res) => {
 
 //TODO
 router.get('/:nameTourney/:nameTeam', (req, res) => {
-
+    
 })
 
 
@@ -113,7 +113,7 @@ router.put('/', (req, res) => { //API per aggiungere giocatore al team di un tor
     let teamId = "";
     let playerId = "";
     let arrTeams = [];
-    User.findOne({"username": req.body.username, "password": req.body.password }).populate("player").exec((err, result) => {
+    User.findOne({"username": req.body.username, "password": req.body.password}).populate("player").exec((err, result) => {
         if(err) { 
             return handleError(err);
         } else if(isNullOrUndefined(result)) {
@@ -153,26 +153,31 @@ router.put('/', (req, res) => { //API per aggiungere giocatore al team di un tor
                                     return
                                 }
                                 else {
-                                    Team.findOneAndUpdate( //inserisco il player al team che mi interessa
-                                    { _id: teamId }, 
-                                    { $push: { players: playerId  } },
-                                    function (error, success) {
-                                        if (error) {
-                                            console.log(error);
+                                    Team.findById({ _id: teamId }, (err, team) => { 
+                                        if(!team.players.includes(playerId)) {
+                                            Team.updateOne( //inserisco il player al team che mi interessa
+                                            { _id: teamId }, 
+                                            { $push: { players: playerId  } },
+                                            function (error, success) {
+                                                if (error) {
+                                                    console.log(error);
+                                                    res.status(500).send();
+                                                } else {
+                                                    console.log(success);
+                                                    res.status(200).send();
+                                                    return
+                                                }
+                                            });
                                         } else {
-                                            console.log(success);
+                                            res.status(403).json({ error: "Giocatore già presente"})
                                         }
-                                    });
-                                    res.status(200).send();
-                                    return
-                                }
-                                
+                                    })
+                                }   
                             })
                         }
                     }
                 })
             }
-            
         }
     })
 })
