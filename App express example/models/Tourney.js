@@ -2,6 +2,11 @@ const mongoose = require('mongoose')
 const User = require('./User')
 
 const TourneySchema = mongoose.Schema({
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        require: [true, "id creatore richiesto"]
+    },
     name: {
         type: String,
         required: [true, "nome richiesto"]
