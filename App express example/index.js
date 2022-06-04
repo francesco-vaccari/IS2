@@ -22,6 +22,16 @@ app.get('/', (req, res) => {
 })
 
 
+//////////////TOKEN ROUTES////////////////////////////////
+const authentication = require('./api/v2/authentication.js');
+const tokenChecker = require('./api/v2/tokenChecker.js');
+app.use('/api/v2/authentication', authentication);
+app.use('/api/v2/users/me', tokenChecker);
+app.use('/api/v2/tourneys/', tokenChecker);
+app.use('/api/v2/players/', tokenChecker);
+/////////////////////////////////////////////////////////////////
+
+
 /////////ROUTES/////////////////////////////////
 const login = require('./routes/login')
 app.use('/login', login)

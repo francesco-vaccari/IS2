@@ -8,6 +8,7 @@ const Player = require('../../models/Player')
 const User = require('../../models/User')
 const Game = require('../../models/Game')
 
+//modifica
 router.post('/', (req, res) => {
     if (!validatePost(req)) {
         res.status(400).json({ error: "errore nei dati inseriti" })
@@ -28,7 +29,6 @@ router.post('/', (req, res) => {
                             startingDate: startingDate,
                             endingDate: endingDate,
                             format: req.body.format,
-                            private: req.body.private,
                             games: [],
                             teams: []
                         })
@@ -86,7 +86,7 @@ router.post('/', (req, res) => {
 
 function validatePost(req) {
     console.log(req.body)
-    if (!req.body.hasOwnProperty('name') || !req.body.hasOwnProperty('startingDate') || !req.body.hasOwnProperty('endingDate') || !req.body.hasOwnProperty('private') || !req.body.hasOwnProperty('format') || !req.body.hasOwnProperty('teams')) { console.log("qui"); return false }
+    if (!req.body.hasOwnProperty('name') || !req.body.hasOwnProperty('startingDate') || !req.body.hasOwnProperty('endingDate') || !req.body.hasOwnProperty('format') || !req.body.hasOwnProperty('teams')) { console.log("qui"); return false }
     console.log("body ok")
     if (req.body.name == "") { return false }
     console.log("name ok")
@@ -97,14 +97,12 @@ function validatePost(req) {
     if (startingDate.toString() == "Invalid Date" || endingDate.toString() == "Invalid Date") { return false }
     if (Date.now() > endingDate.getTime() || startingDate.getTime() > endingDate.getTime()) { return false }
     console.log("dates ok")
-    if (req.body.private != "true" && req.body.private != "false") { return false }
-    console.log("private ok")
     if (!Array.isArray(req.body.teams) || req.body.teams.length == 0) { return false }
     console.log("teams ok")
     return true
 }
 
-
+//modifica
 router.get('/:nameTourney/:nameTeam', (req, res) => {
     Tourney.findOne({ name: req.params.nameTourney }, (err, result) => {
         if(isNull(result)){
@@ -147,7 +145,7 @@ router.get('/:nameTourney/:nameTeam', (req, res) => {
 })
 
 
-
+//modifica
 router.get('/:name', (req, res) => {
     Tourney.findOne({ name: req.params.name }, (err, result) => {
         torneo = result
@@ -180,7 +178,6 @@ router.get('/:name', (req, res) => {
                                         name: torneo.name,
                                         startingDate: startingDate,
                                         endingDate: endingDate,
-                                        private: torneo.private,
                                         format: torneo.format,
                                         teams: jsonTeams,
                                         games: jsonGames
@@ -198,8 +195,8 @@ router.get('/:name', (req, res) => {
     })
 })
 
-
-router.put('/', (req, res) => { //API per aggiungere giocatore al team di un torneo specifico
+//modifica
+router.put('/:name/:nameTeam', (req, res) => { //API per aggiungere giocatore al team di un torneo specifico
     let teamId = "";
     let playerId = "";
     let arrTeams = [];
@@ -215,7 +212,7 @@ router.put('/', (req, res) => { //API per aggiungere giocatore al team di un tor
                 return
             } else {
                 playerId = result.player.id
-                Tourney.findOne({"name": req.body.name}).populate("teams").exec((err, result) => { //cerca tutti i team corrispondenti al nome del torneo
+                Tourney.findOne({"name": req.params.name}).populate("teams").exec((err, result) => { //cerca tutti i team corrispondenti al nome del torneo
                     if(err) { 
                         return handleError(err);
                     } else if(isNullOrUndefined(result)) {
@@ -225,7 +222,7 @@ router.put('/', (req, res) => { //API per aggiungere giocatore al team di un tor
                     else {
                         arrTeams = result.teams; //metto da parte i team trovati
                         for(let i=0; i<arrTeams.length; i++){ //cerco il nome del team che mi interessa tra i team di quel torneo
-                            if(arrTeams[i].name == req.body.nameTeam) { 
+                            if(arrTeams[i].name == req.params.nameTeam) { 
                                 teamId = arrTeams[i].id; // se trovo il team che mi interessa memorizzo il suo id
                             } 
                         } 
@@ -270,13 +267,13 @@ router.put('/', (req, res) => { //API per aggiungere giocatore al team di un tor
     })
 })
 
-
-router.delete('/', (req, res) => {
+//modifica
+router.delete('/:name', (req, res) => {
     if(!validateDelete(req)){
         res.status(400).json({ error: "errore nei dati inseriti" })
         return
     } else {
-        Tourney.findOne({ name: req.body.name }, (err, result) => {
+        Tourney.findOne({ name: req.params.name }, (err, result) => {
             torneo = result
             if(isNull(result)){
                 res.status(404).json({ error: "torneo non trovato"})
@@ -298,7 +295,7 @@ router.delete('/', (req, res) => {
                                     let a = 1
                                 })
                             }
-                            Tourney.deleteOne({ name: req.body.name }, (err, result) => {
+                            Tourney.deleteOne({ name: req.params.name }, (err, result) => {
                                 res.status(204).send()
                                 return
                             })

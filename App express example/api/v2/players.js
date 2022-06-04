@@ -4,9 +4,9 @@ const { isNull, isNullOrUndefined } = require('url/util')
 const Player = require('../../models/Player')
 const User = require('../../models/User')
 
-
-router.get('/:username', (req, res) => {
-    User.findOne({ username: req.params.username }, (err, result) => {
+//modifica
+router.get('/me', (req, res) => {
+    User.findOne({ username: req.loggedUser.username }, (err, result) => {
         if(isNull(result)){
             res.status(404).json({ error: "giocatore non trovato" })
             return
@@ -27,7 +27,7 @@ router.get('/:username', (req, res) => {
     })
 })
 
-
+//modifica
 router.post('/', (req, res) => {
     if(!validatePost(req)){
         res.status(400).json({ error: "errore nei dati inseriti" })
@@ -64,8 +64,8 @@ function validatePost(req){
     return true
 }
 
-
-router.delete('/', (req, res) => {
+//modifica
+router.delete('/me', (req, res) => {
     if(!validateDelete(req)){
         res.status(400).json({ error: "errore nei dati inseriti" })
         return
