@@ -8,22 +8,21 @@ const Player = require('../../models/Player')
 const User = require('../../models/User')
 const Game = require('../../models/Game')
 
-//TODO
 router.post('/', (req, res) => {
     if (!validatePost(req)) {
         res.status(400).json({ error: "errore nei dati inseriti" })
         return
     } else {
         Tourney.findOne({ name: req.body.name }, (err, result) => {
-            if(isNull(result)){
+            if (isNull(result)) {
                 User.findOne({ username: req.body.username }, (err, result) => {
-                    if(isNull(result)){
+                    if (isNull(result)) {
                         res.status(404).json({ error: "username passato non trovato" })
                         return
                     } else {
                         let startingDate = new Date(req.body.startingDate).getTime()
                         let endingDate = new Date(req.body.endingDate).getTime()
-                        const torneo = new Tourney ({
+                        const torneo = new Tourney({
                             name: req.body.name,
                             owner: result.id,
                             startingDate: startingDate,
@@ -34,50 +33,55 @@ router.post('/', (req, res) => {
                             teams: []
                         })
                         torneo.save()
-                        .then(data => {
-                            for(counter in req.body.teams){
-                                let item = req.body.teams[counter]
-                                let team = new Team({
-                                    name: item,
-                                    players: []
-                                })
-                                team.save()
-                                .then(data => {
-                                    Tourney.updateOne({ _id: torneo._id }, { $push: { teams: team._id } }, (err, result) => {
-                                        let a = 1
+                            .then(data => {
+                                for (counter in req.body.teams) {
+                                    let item = req.body.teams[counter]
+                                    let team = new Team({
+                                        name: item,
+                                        players: []
                                     })
-                                })
-                            }
-                            let increment = ((endingDate-startingDate)/((counter+1)*counter)) //calcolo l'icremento per fissare le date delle partite in modo ordinato nell'intervallo
-                            let dataric = startingDate //fisso la data di partenza
-                            for(let i in counter){
-                                //console.log(i)
-                                let gametime = new Date(dataric) //la prima partita è il primo giorno di torneo
-                                let game = new Game({
-                                    date: gametime,
-                                    //teamUno: "puccio", //serve fare il casotto di prima tipo per l'owner
-                                    //teamDue: "gimmi"   //serve fare il casotto di prima tipo per l'owner
-                                })
-                                dataric = dataric + increment //incremento in modo da avere il giorno della prossima partita
-                                game.save()
-                                .then(data => {
-                                    Tourney.updateOne({ _id: torneo._id }, { $push: { games: game._id } }, (err, result) => { //copiato da sopra ma funziona
-                                        let a = 1
-                                    })
-                                })
-                                //console.log(i) //in questo punto si rompe il ciclo for infatti "0" è l'ultima cosa che stampa la console 
+                                    team.save()
+                                        .then(data => {
+                                            Tourney.updateOne({ _id: torneo._id }, { $push: { teams: team._id } }, (err, result) => {
+                                                let a = 1
+                                            })
+                                        })
+                                }
+                                let partite = ((req.body.teams.length) * (req.body.teams.length-1))
+                                let increment = ((endingDate - startingDate) / partite) //calcolo l'icremento per fissare le date delle partite in modo ordinato nell'intervallo
+                                let dataric = startingDate //fisso la data di partenza
+                                for (let i = 0; i<req.body.teams.length; i++) {
+                                    for (let j = 0; j<req.body.teams.length; j++){
+                                        if (i!=j){
+                                        let gametime = new Date(dataric) //la prima partita è il primo giorno di torneo
+                                        let game = new Game({
+                                            date: gametime,
+                                            teamUno: req.body.teams[i],
+                                            teamDue: req.body.teams[j]  
+                                        })
+                                        dataric = dataric + increment //incremento in modo da avere il giorno della prossima partita
+                                        game.save()
+                                            .then(data => {
+                                                Tourney.updateOne({ _id: torneo._id }, { $push: { games: game._id } }, (err, result) => { //copiato da sopra ma funziona
+                                                    let a = 1
+                                                })
+                                            })
+                                    }
+                                    
+                                }
+                                
                             }
                             res.location('/api/v2/tourneys/' + req.body.name).status(201).send()
                             return
                         })
-                    }
-                })
-            } else {
-                res.status(409).json({ error: "nome torneo già utilizzato" })
-                return
-            }
-        })
-    }
+                }
+            })
+        } else {
+            res.status(409).json({ error: "nome torneo già utilizzato" })
+            return
+        }
+    })
+}
 })
 
 function validatePost(req) {
@@ -143,34 +147,56 @@ router.get('/:nameTourney/:nameTeam', (req, res) => {
 })
 
 
-//TODO
+
 router.get('/:name', (req, res) => {
     Tourney.findOne({ name: req.params.name }, (err, result) => {
+        torneo = result
         if (isNull(result)) {
             res.status(404).json({ error: "torneo non trovato" })
             return
         } else {
             let startingDate = new Date(result.startingDate)
             let endingDate = new Date(result.endingDate)
+            teams = result.teams
+            games = result.games
+            jsonGames = []
+            jsonTeams = []
 
-            teams = []
-
-            res.status(200).json({
-                name: result.name,
-                startingDate: startingDate,
-                endingDate: endingDate,
-                private: result.private,
-                format: result.format,
-                teams: result.teams, //deve ritornare i nomi dei team associati all'id
-                games: result.games //deve tornate i dati del documenti associato all'id
-            })
-            return
+            fatto = false
+            mut1 = 0
+            mut2 = 0
+            for(counter in teams){
+                Team.findOne({ _id: teams[counter] }, (err, result) =>{
+                    jsonTeams.push(result.name)
+                    mut1++
+                    if(mut1 == teams.length){
+                        for(counter in games){
+                            Game.findOne({ _id: games[counter] }, (err, result) => {
+                                d = new Date(result.date)
+                                jsonGames.push({ date: d, teamUno: result.teamUno, teamDue: result.teamDue })
+                                mut2++
+                                if(mut2 == games.length){
+                                    res.status(200).json({
+                                        name: torneo.name,
+                                        startingDate: startingDate,
+                                        endingDate: endingDate,
+                                        private: torneo.private,
+                                        format: torneo.format,
+                                        teams: jsonTeams,
+                                        games: jsonGames
+                                    })
+                                    return
+                                }
+                            })
+                        }
+                    }
+                })
+            }
+            
+            
         }
     })
 })
-
-
-
 
 
 router.put('/', (req, res) => { //API per aggiungere giocatore al team di un torneo specifico
@@ -224,10 +250,8 @@ router.put('/', (req, res) => { //API per aggiungere giocatore al team di un tor
                                             { $push: { players: playerId  } },
                                             function (error, success) {
                                                 if (error) {
-                                                    console.log(error);
                                                     res.status(500).send();
                                                 } else {
-                                                    console.log(success);
                                                     res.status(200).send();
                                                     return
                                                 }
