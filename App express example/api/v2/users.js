@@ -36,8 +36,8 @@ function validatePost(req){
     return true
 }
 
-
-router.delete('/', (req, res) => {
+//modifica
+router.delete('/me', (req, res) => {
     if(!validateDelete(req)){
         res.status(400).json({ error: "errore nei dati inseriti" })
         return
@@ -68,8 +68,8 @@ function validateDelete(req){
     return true
 }
 
-
-router.put('/', (req, res) => {
+//modifica
+router.put('/me', (req, res) => {
     if(!validatePut(req)){
         res.status(400).json({ error: "errore nei dati inseriti" })
         return
@@ -99,5 +99,18 @@ function validatePut(req){
     return true
 }
 
+router.get('/me', async (req, res) => {
+    if(!req.loggedUser) {
+        return;
+    }
+    let user = await User.findOne({ username: req.loggedUser.username } )
+    if(isNull(user)){
+        res.status(404).json({ error: "Utente non trovato" })
+        return
+    } else {
+        res.status(200).json({ username: req.loggedUser.username, password: user.password })
+        return
+    }
+})
 
 module.exports = router
