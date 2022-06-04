@@ -28,24 +28,25 @@ router.get('/me', (req, res) => {
 })
 
 //modifica
-router.post('/', (req, res) => {
-    if(!validatePost(req)){
+router.post('/', async (req, res) => {
+    /*if(!validatePost(req)){
         res.status(400).json({ error: "errore nei dati inseriti" })
-        return
-    } else {
-        User.findOne({ username: req.body.username, password: req.body.password }, (err, result) => {
+        return*/
+    //} else {
+        let user = await User.findOne({ username: req.loggedUser.username })
+        User.findOne({ username: req.loggedUser.username, password: user.password }, (err, result) => {
             if(isNull(result)){
                 res.status(404).json({error: "utente non trovato"})
                 return
             } else {
-                User.findOne({ username: req.body.username, password: req.body.password, playerAssigned: "true" }, (err, result) => {
+                User.findOne({ username: req.body.username, password: user.password, playerAssigned: "true" }, (err, result) => {
                     if(isNull(result)){
                         const player = new Player({
                             name: req.body.name,
                             surname: req.body.surname
                         })
                         player.save()
-                        .then(User.updateOne({ username: req.body.username, password: req.body.password }, { player: player, playerAssigned: "true" })
+                        .then(User.updateOne({ username: req.body.username, password: user.password }, { player: player, playerAssigned: "true" })
                         .then(res.location('/api/v2/players/' + req.body.username).status(201).send()))
                         return
                     } else {
@@ -55,7 +56,7 @@ router.post('/', (req, res) => {
                 })
             }
         })
-    }
+    //}
 })
 
 function validatePost(req){
@@ -65,12 +66,13 @@ function validatePost(req){
 }
 
 //modifica
-router.delete('/me', (req, res) => {
-    if(!validateDelete(req)){
+router.delete('/me', async (req, res) => {
+    /*if(!validateDelete(req)){
         res.status(400).json({ error: "errore nei dati inseriti" })
-        return
-    } else {
-        User.findOne({ username: req.body.username, password: req.body.password }, (err, result) => {
+        return*/
+    //} else {
+        let user = await User.findOne({ username: req.loggedUser.username })
+        User.findOne({ username: req.loggedUser.username, password: user.password }, (err, result) => {
             console.log(result)
             if(isNull(result)){
                 res.status(404).json({error: "utente non trovato"})
@@ -82,14 +84,14 @@ router.delete('/me', (req, res) => {
             }
             if(result.playerAssigned == "true"){
                 Player.deleteOne({ _id: result.player }, (err, result) => {
-                    User.updateOne({ username: req.body.username, password: req.body.password }, { playerAssigned: "false" }, (err, result) => {
+                    User.updateOne({ username: req.loggedUser.username, password: user.password }, { playerAssigned: "false" }, (err, result) => {
                         res.status(204).send()
                         return
                     })
                 })
             }
         })
-    }
+    //}
 })
 
 function validateDelete(req){
