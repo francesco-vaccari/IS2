@@ -95,7 +95,7 @@ router.delete('/me', async (req, res) => {
                 })
             }
         })
-    //}
+    }
 })
 
 
