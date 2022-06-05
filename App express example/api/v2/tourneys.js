@@ -8,12 +8,9 @@ const Player = require('../../models/Player')
 const User = require('../../models/User')
 const Game = require('../../models/Game')
 
-//modifica
+
 router.post('/', async function (req, res) {
-    if(!req.loggedUser) {
-      return;
-    }
-    if (!validatePost(req)) {
+    if(!validatePost(req)) {
       res.status(400).json({ error: "errore nei dati inseriti" })
       return
     } else {
@@ -82,24 +79,18 @@ router.post('/', async function (req, res) {
 })
 
 function validatePost(req) {
-    console.log(req.body)
-    if (!req.body.hasOwnProperty('name') || !req.body.hasOwnProperty('startingDate') || !req.body.hasOwnProperty('endingDate') || !req.body.hasOwnProperty('format') || !req.body.hasOwnProperty('teams')) { console.log("qui"); return false }
-    console.log("body ok")
+    if (!req.body.hasOwnProperty('name') || !req.body.hasOwnProperty('startingDate') || !req.body.hasOwnProperty('endingDate') || !req.body.hasOwnProperty('format') || !req.body.hasOwnProperty('teams')) { return false }
     if (req.body.name == "") { return false }
-    console.log("name ok")
     if (req.body.format == "") { return false }
-    console.log("format ok")
     let startingDate = new Date(req.body.startingDate)
     let endingDate = new Date(req.body.endingDate)
     if (startingDate.toString() == "Invalid Date" || endingDate.toString() == "Invalid Date") { return false }
     if (Date.now() > endingDate.getTime() || startingDate.getTime() > endingDate.getTime()) { return false }
-    console.log("dates ok")
     if (!Array.isArray(req.body.teams) || req.body.teams.length == 0) { return false }
-    console.log("teams ok")
     return true
 }
 
-//modifica
+
 router.get('/:nameTourney/:nameTeam', (req, res) => {
     Tourney.findOne({ name: req.params.nameTourney }, (err, result) => {
         if(isNull(result)){
@@ -142,7 +133,6 @@ router.get('/:nameTourney/:nameTeam', (req, res) => {
 })
 
 
-//modifica
 router.get('/:name', (req, res) => {
     Tourney.findOne({ name: req.params.name }, (err, result) => {
         torneo = result
@@ -192,87 +182,90 @@ router.get('/:name', (req, res) => {
     })
 })
 
-//modifica
 router.put('/:name/:nameTeam', async function(req, res) { //API per aggiungere giocatore al team di un torneo specifico
     let teamId = "";
     let playerId = "";
     let arrTeams = [];
     let utente = await User.findOne({ username: req.loggedUser.username })
-    User.findOne({"username": req.loggedUser.username, "password": utente.password}).populate("player").exec((err, result) => {
-        if(err) { 
-            return handleError(err);
-        } else if(isNullOrUndefined(result)) {
-            res.status(404).json({ error: "Giocatore non trovato"})
-            return
-        } else {
-            if(result.playerAssigned == "false"){
-                res.status(400).json({ error: "utente non è associato ad un giocatore" })
+    if (isNull(utente)) {
+        res.status(404).json({ error: "utente non trovato" })
+        return
+      } else {
+        User.findOne({"username": req.loggedUser.username, "password": utente.password}).populate("player").exec((err, result) => {
+            if(err) { 
+                return handleError(err);
+            } else if(isNullOrUndefined(result)) {
+                res.status(404).json({ error: "Giocatore non trovato"})
                 return
             } else {
-                console.log(result)
-                playerId = result.player.id
-                Tourney.findOne({"name": req.params.name}).populate("teams").exec((err, result) => { //cerca tutti i team corrispondenti al nome del torneo
-                    if(err) { 
-                        return handleError(err);
-                    } else if(isNullOrUndefined(result)) {
-                        res.status(404).json({ error: "Torneo non trovato"})
-                        return
-                    }
-                    else {
-                        arrTeams = result.teams; //metto da parte i team trovati
-                        for(let i=0; i<arrTeams.length; i++){ //cerco il nome del team che mi interessa tra i team di quel torneo
-                            if(arrTeams[i].name == req.params.nameTeam) { 
-                                teamId = arrTeams[i].id; // se trovo il team che mi interessa memorizzo il suo id
-                            } 
-                        } 
-                        if(teamId == "") {
-                            res.status(404).json({ error: "Team non trovato"})
+                if(result.playerAssigned == "false"){
+                    res.status(400).json({ error: "utente non è associato ad un giocatore" })
+                    return
+                } else {
+                    playerId = result.player.id
+                    Tourney.findOne({"name": req.params.name}).populate("teams").exec((err, result) => { //cerca tutti i team corrispondenti al nome del torneo
+                        if(err) { 
+                            return handleError(err);
+                        } else if(isNullOrUndefined(result)) {
+                            res.status(404).json({ error: "Torneo non trovato"})
                             return
                         }
-                        else if(teamId != "") {
-                            console.log(playerId)
-                            Player.findById({ _id: playerId }, (err, result) => { //cerco il player tramite il nome
-                                if(err) { 
-                                    return handleError(err);
+                        else {
+                            arrTeams = result.teams; //metto da parte i team trovati
+                            for(let i=0; i<arrTeams.length; i++){ //cerco il nome del team che mi interessa tra i team di quel torneo
+                                if(arrTeams[i].name == req.params.nameTeam) { 
+                                    teamId = arrTeams[i].id; // se trovo il team che mi interessa memorizzo il suo id
                                 } 
-                                else if(isNullOrUndefined(result)) {
-                                    res.status(404).json({ error: "Giocatore non trovato"})
-                                    return
-                                }
-                                else {
-                                    Team.findById({ _id: teamId }, (err, team) => { 
-                                        if(!team.players.includes(playerId)) {
-                                            Team.updateOne( //inserisco il player al team che mi interessa
-                                            { _id: teamId }, 
-                                            { $push: { players: playerId  } },
-                                            function (error, success) {
-                                                if (error) {
-                                                    res.status(500).send();
-                                                } else {
-                                                    res.status(200).send();
-                                                    return
-                                                }
-                                            });
-                                        } else {
-                                            res.status(403).json({ error: "Giocatore già presente"})
-                                        }
-                                    })
-                                }   
-                            })
+                            } 
+                            if(teamId == "") {
+                                res.status(404).json({ error: "Team non trovato"})
+                                return
+                            }
+                            else if(teamId != "") {
+                                Player.findById({ _id: playerId }, (err, result) => { //cerco il player tramite il nome
+                                    if(err) { 
+                                        return handleError(err);
+                                    } 
+                                    else if(isNullOrUndefined(result)) {
+                                        res.status(404).json({ error: "Giocatore non trovato"})
+                                        return
+                                    }
+                                    else {
+                                        Team.findById({ _id: teamId }, (err, team) => { 
+                                            if(!team.players.includes(playerId)) {
+                                                Team.updateOne( //inserisco il player al team che mi interessa
+                                                { _id: teamId }, 
+                                                { $push: { players: playerId  } },
+                                                function (error, success) {
+                                                    if (error) {
+                                                        res.status(500).send();
+                                                    } else {
+                                                        res.status(200).send();
+                                                        return
+                                                    }
+                                                });
+                                            } else {
+                                                res.status(403).json({ error: "Giocatore già presente"})
+                                            }
+                                        })
+                                    }   
+                                })
+                            }
                         }
-                    }
-                })
+                    })
+                }
             }
-        }
-    })
+        })
+    }
 })
 
-//modifica
+
 router.delete('/:name', async function (req, res){
-    /*if(!validateDelete(req)){
-        res.status(400).json({ error: "errore nei dati inseriti" })
+    let utente = await User.findOne({ username: req.loggedUser.username })
+    if (isNull(utente)) {
+        res.status(404).json({ error: "utente non trovato" })
         return
-    } else {*/
+      } else {
         let torneo = await Tourney.findOne({ name: req.params.name }) 
         if(isNull(torneo)){
             res.status(404).json({ error: "torneo non trovato"})
@@ -283,7 +276,7 @@ router.delete('/:name', async function (req, res){
                 res.status(500).json({ error: "server error"})
                 return
             } else {
-                if(user.username == req.loggedUser.username && user.password == req.body.password){
+                if(user.username == req.loggedUser.username && user.password == utente.password){
                     for(counter in torneo.teams){
                         Team.deleteOne({ _id: torneo.teams[counter] }, (err, result) => {
                             let a = 1
@@ -304,12 +297,7 @@ router.delete('/:name', async function (req, res){
                 }
             }
         }
-    /*}*/
+    }
 })
-
-/*function validateDelete(req){
-    if(!req.body.hasOwnProperty('name') || !req.body.hasOwnProperty('username') || !req.body.hasOwnProperty('password')){return false}
-    return true
-}*/
 
 module.exports = router

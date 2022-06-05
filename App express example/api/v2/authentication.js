@@ -4,7 +4,7 @@ const User = require('../../models/User')
 const jwt = require('jsonwebtoken')
 
 
-router.post('', async function(req, res) {
+router.post('/', async function(req, res) {
 
 	let user = await User.findOne({
 		username: req.body.username

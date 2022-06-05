@@ -4,7 +4,7 @@ const { isNull, isNullOrUndefined } = require('url/util')
 const Player = require('../../models/Player')
 const User = require('../../models/User')
 
-//modifica
+
 router.get('/me', (req, res) => {
     User.findOne({ username: req.loggedUser.username }, (err, result) => {
         if(isNull(result)){
@@ -27,53 +27,57 @@ router.get('/me', (req, res) => {
     })
 })
 
-//modifica
+
 router.post('/', async (req, res) => {
-    /*if(!validatePost(req)){
+    if(!validatePost(req)){
         res.status(400).json({ error: "errore nei dati inseriti" })
-        return*/
-    //} else {
+        return
+    } else {
         let user = await User.findOne({ username: req.loggedUser.username })
-        User.findOne({ username: req.loggedUser.username, password: user.password }, (err, result) => {
-            if(isNull(result)){
-                res.status(404).json({error: "utente non trovato"})
-                return
-            } else {
-                User.findOne({ username: req.loggedUser.username, password: user.password, playerAssigned: "true" }, (err, result) => {
-                    if(isNull(result)){
-                        const player = new Player({
-                            name: req.body.name,
-                            surname: req.body.surname
-                        })
-                        player.save()
-                        .then(User.updateOne({ username: req.loggedUser.username, password: user.password }, { player: player, playerAssigned: "true" })
-                        .then(res.location('/api/v2/players/me').status(201).send()))
-                        return
-                    } else {
-                        res.status(409).json({error: "esiste un giocatore già assegnato a questo utente"})
-                        return
-                    }
-                })
-            }
-        })
-    //}
+        if(isNull(user)){
+            res.status(404).json({ error: "utente non trovato" })
+            return
+        } else {
+            User.findOne({ username: req.loggedUser.username, password: user.password }, (err, result) => {
+                if(isNull(result)){
+                    res.status(404).json({error: "utente non trovato"})
+                    return
+                } else {
+                    User.findOne({ username: user.username, password: user.password, playerAssigned: "true" }, (err, result) => {
+                        if(isNull(result)){
+                            const player = new Player({
+                                name: req.body.name,
+                                surname: req.body.surname
+                            })
+                            player.save()
+                            .then(User.updateOne({ username: user.username, password: user.password }, { player: player, playerAssigned: "true" })
+                            .then(res.location('/api/v2/players/me').status(201).send()))
+                            return
+                        } else {
+                            res.status(409).json({error: "esiste un giocatore già assegnato a questo utente"})
+                            return
+                        }
+                    })
+                }
+            })
+        }
+    }
 })
 
 function validatePost(req){
-    if(!req.body.hasOwnProperty('username') || !req.body.hasOwnProperty('password') || !req.body.hasOwnProperty('name') || !req.body.hasOwnProperty('surname')){return false}
+    if(!req.body.hasOwnProperty('name') || !req.body.hasOwnProperty('surname')){return false}
     if(req.body.name == "" || req.body.surname == ""){return false}
     return true
 }
 
-//modifica
+
 router.delete('/me', async (req, res) => {
-    /*if(!validateDelete(req)){
-        res.status(400).json({ error: "errore nei dati inseriti" })
-        return*/
-    //} else {
-        let user = await User.findOne({ username: req.loggedUser.username })
+    let user = await User.findOne({ username: req.loggedUser.username })
+    if(isNull(user)){
+        res.status(404).json({ error: "utente non trovato" })
+        return
+    } else {
         User.findOne({ username: req.loggedUser.username, password: user.password }, (err, result) => {
-            console.log(result)
             if(isNull(result)){
                 res.status(404).json({error: "utente non trovato"})
                 return
@@ -91,13 +95,8 @@ router.delete('/me', async (req, res) => {
                 })
             }
         })
-    //}
+    }
 })
-
-function validateDelete(req){
-    if(!req.body.hasOwnProperty('username') || !req.body.hasOwnProperty('password')){return false}
-    return true
-}
 
 
 module.exports = router
