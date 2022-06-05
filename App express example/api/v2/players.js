@@ -39,15 +39,15 @@ router.post('/', async (req, res) => {
                 res.status(404).json({error: "utente non trovato"})
                 return
             } else {
-                User.findOne({ username: req.body.username, password: user.password, playerAssigned: "true" }, (err, result) => {
+                User.findOne({ username: req.loggedUser.username, password: user.password, playerAssigned: "true" }, (err, result) => {
                     if(isNull(result)){
                         const player = new Player({
                             name: req.body.name,
                             surname: req.body.surname
                         })
                         player.save()
-                        .then(User.updateOne({ username: req.body.username, password: user.password }, { player: player, playerAssigned: "true" })
-                        .then(res.location('/api/v2/players/' + req.body.username).status(201).send()))
+                        .then(User.updateOne({ username: req.loggedUser.username, password: user.password }, { player: player, playerAssigned: "true" })
+                        .then(res.location('/api/v2/players/me').status(201).send()))
                         return
                     } else {
                         res.status(409).json({error: "esiste un giocatore già assegnato a questo utente"})
