@@ -24,7 +24,6 @@ const TourneySchema = mongoose.Schema({
         type: Number,
         required: [true, "data fine richiesta"]
     },
-    private: Boolean,
     format: String,
     teams: [{
         type: mongoose.Schema.Types.ObjectId,
