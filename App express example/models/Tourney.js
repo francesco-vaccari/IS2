@@ -25,13 +25,13 @@ const TourneySchema = mongoose.Schema({
         required: [true, "data fine richiesta"]
     },
     format: String,
-    teams: [{ 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Team' 
+    teams: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Team'
     }],
-    games: [{ 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Game' 
+    games: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Game'
     }]
 })
 
