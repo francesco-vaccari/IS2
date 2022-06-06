@@ -35,6 +35,7 @@ router.post('/', async function (req, res) {
           torneo.save()
             .then( async data => {
               for (counter in req.body.teams) {
+                  if(req.body.teams[counter] == ""){req.body.teams[counter] = "undefined"}
                 let item = req.body.teams[counter]
                 let team = new Team({
                   name: item,

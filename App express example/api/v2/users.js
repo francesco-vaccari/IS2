@@ -108,9 +108,6 @@ function validatePut(req){
 }
 
 router.get('/me', async (req, res) => {
-    if(!req.loggedUser) {
-        return;
-    }
     let user = await User.findOne({ username: req.loggedUser.username } )
     if(isNull(user)){
         res.status(404).json({ error: "Utente non trovato" })
