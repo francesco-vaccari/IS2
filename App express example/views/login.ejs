@@ -12,11 +12,11 @@
 
 <p id="message"></p>
 
-<button type="button" onclick="home()">Home</button>
+<button type="button" onclick="signup()">Signup</button>
 
 <script>
     function login(){
-        fetch('../api/v2/authentication', {
+        fetch('/api/v2/authentication', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -27,7 +27,7 @@
         .then(async resp => {
             json = await resp.json()
             if(json.success){
-                fetch('../login', {
+                fetch('/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json'},
                     body: JSON.stringify({
@@ -35,7 +35,7 @@
                     })
                 })
                 .then((resp) => {
-                    window.location.href = "../"
+                    window.location.href = "/"
                 })
                 .catch( error => console.error(error) )
             } else {
@@ -45,8 +45,8 @@
         .catch( error => console.error(error) )
     }
 
-    function home(){
-        window.location.href = "../"
+    function signup(){
+        window.location.href = "/signup"
     }
 </script>
 

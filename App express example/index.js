@@ -24,9 +24,7 @@ mongoose.connect(process.env.DB_CONNECTION, () => {
 
 app.set('view engine', 'ejs');
 
-app.get('/', (req, res) => {
-    res.render('home', { req: req })
-})
+
 
 
 //////////////TOKEN ROUTES////////////////////////////////
@@ -67,5 +65,11 @@ app.use('/api/v2/players', players)
 
 ///////////////////////////////////////////////
 
+const Tourney = require('./models/Tourney')
+
+app.get('/', async (req, res) => {
+    let tornei = await Tourney.find({})
+    res.render('home', { req: req, tornei: tornei })
+})
 
 app.listen(3000)
