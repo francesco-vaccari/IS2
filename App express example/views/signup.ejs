@@ -10,8 +10,10 @@
 <input type="password" id="password" name="password">
 <input type="submit" value="submit" onclick="signup()">
 
+
 <br>
 <button type="button" onclick="login()">Login</button>
+
 
 <p id="error"></p>
 
@@ -32,7 +34,9 @@
                 console.log(error)
             }
             if(resp.status == 201){
+
                 window.location.href = "/login"
+
             } else {
                 document.getElementById("error").innerText = json.error
             }
@@ -40,8 +44,10 @@
         .catch( error => console.log(error))
     }
 
+
     function login(){
         window.location.href = "/login"
+
     }
 </script>
 

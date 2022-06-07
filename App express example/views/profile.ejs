@@ -6,8 +6,10 @@
 
 <p id="message"></p><br>
 
+
 <p id="player"></p>
 <button id="deletePlayer" type="button" onclick="deletePlayer()">Delete associated player</button><br>
+
 
 <label id="label1" for="nome">nome</label>
 <input type="text" name="nome" id="nome">
@@ -25,10 +27,12 @@
 <script>
     const token = "<%= req.session.token %>"
     if(token == ''){
+
         window.location.href = '/login'
     }
 
     fetch('/api/v2/users/me', {
+
         method: 'GET',
         headers: { 'Content-Type': 'application/json', 'x-access-token': token}
     })
@@ -46,8 +50,10 @@
     })
     .catch( error => console.error(error) )
     
+
     function getPlayer(){
         fetch('/api/v2/players/me', {
+
         method: 'GET',
         headers: { 'Content-Type': 'application/json', 'x-access-token': token}
     })
@@ -64,7 +70,9 @@
             document.getElementById("postplayer").style.display = "none"
             document.getElementById("label1").style.display = "none"
             document.getElementById("label2").style.display = "none"
+
             document.getElementById("deletePlayer").style.display = "inline"
+
         } else {
             document.getElementById("player").innerText = json.error
             document.getElementById("nome").style.display = "inline"
@@ -72,6 +80,7 @@
             document.getElementById("postplayer").style.display = "inline"
             document.getElementById("label1").style.display = "inline"
             document.getElementById("label2").style.display = "inline"
+
             document.getElementById("deletePlayer").style.display = "none"
         }
     })
@@ -80,17 +89,22 @@
     getPlayer()
     function logout(){
         fetch('/login', {
+
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json'}
         })
         .then(resp => {
+
             window.location.href = '/'
+
         })
         .catch( error => console.error(error) )
     }
 
     function del(){
+
         fetch('/api/v2/users/me', {
+
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json', 'x-access-token': token}
         })
@@ -102,7 +116,9 @@
             }
             if(resp.status == 204){
                 logout()
+
                 window.location.href = "/"
+
             } else {
                 document.getElementById("error").innerText = json.error
             }
@@ -111,6 +127,7 @@
     }
 
     function home(){
+
         window.location.href = "/"
     }
 
@@ -157,7 +174,9 @@
             }
         })
         .catch( error => console.log(error))
+
     }
+
 </script>
 
 </body>

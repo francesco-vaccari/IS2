@@ -3,6 +3,7 @@
 <body>
 
 <h1>HOME</h1>
+
 <button id="crea" type="button" onclick="crea()">Creazione Torneo</button>
 <button id="profile" type="button" onclick="profile()">Profile</button>
 
@@ -10,8 +11,10 @@
 
 
 
+
 <script>
     const token = "<%= req.session.token %>"
+
     if(token == ''){
         window.location.href = '/login'
     }
@@ -30,7 +33,13 @@
 
     function profile(){
         window.location.href = "/profile"
+
     }
+
+    function profile(){
+        window.location.href = "../profile"
+    }
+
 </script>
 
 </body>

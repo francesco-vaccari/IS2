@@ -4,6 +4,7 @@
 
 <h1>Tourneys</h1>
 
+
 <p id="message"></p><br>
 
 <div id="iscrizione">
@@ -25,13 +26,16 @@
 
 <p id="error"></p>
 
+
 <button type="button" onclick="home()">Home</button>
 
 <script>
     const token = "<%= req.session.token %>"
     const name = "<%= name %>"
     if(token == ''){
+
         window.location.href = '/login'
+
     }
 
     fetch('/api/v2/tourneys/' + name, {
@@ -46,14 +50,17 @@
         }
         if(resp.status == 200){
             document.getElementById("message").innerText = JSON.stringify(json)
+
             document.getElementById("deleteTourney").style.display = "inline"
             updateTeams(json.teams)
         } else {
             document.getElementById("message").innerText = json.error
             document.getElementById("deleteTourney").style.display = "none"
+
         }
     })
     .catch( error => console.error(error) )
+
 
     function updateTeams(teams){
         for(counter in teams){
@@ -107,6 +114,7 @@
             }
         })
         .catch( error => console.error(error) )
+
     }
 </script>
 
