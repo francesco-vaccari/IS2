@@ -6,12 +6,12 @@ const Player = require('../../models/Player')
 
 
 router.post('/', (req, res) => {
-    if(!validatePost(req)){
+    if (!validatePost(req)) {
         res.status(400).json({ error: "errore nei dati inseriti" })
         return
     } else {
-        User.findOne({ "username": req.body.username}, 'username', (err, result) => {
-            if(isNull(result)){
+        User.findOne({ "username": req.body.username }, 'username', (err, result) => {
+            if (isNull(result)) {
                 const user = new User({
                     username: req.body.username,
                     password: req.body.password,
@@ -30,9 +30,9 @@ router.post('/', (req, res) => {
     }
 })
 
-function validatePost(req){
-    if(!req.body.hasOwnProperty('username') || !req.body.hasOwnProperty('password')){return false}
-    if(req.body.username == "" || req.body.password == ""){return false}
+function validatePost(req) {
+    if (!req.body.hasOwnProperty('username') || !req.body.hasOwnProperty('password')) { return false }
+    if (req.body.username == "" || req.body.password == "") { return false }
     return true
 }
 
@@ -54,7 +54,7 @@ router.delete('/me', async (req, res) => {
                             res.status(204).send()
                             return
                         } else {
-                            res.status(500).json({ message: "Server Error"})
+                            res.status(500).json({ message: "Server Error" })
                             return
                         }
                     })
@@ -63,7 +63,6 @@ router.delete('/me', async (req, res) => {
         })
     }
 })
-
 
 
 router.put('/me', async (req, res) => {
