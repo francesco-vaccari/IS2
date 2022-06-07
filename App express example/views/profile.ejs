@@ -1,183 +1,185 @@
 <!DOCTYPE html>
 <html>
+
 <body>
 
-<h1>Profile</h1>
+    <h1>Profile</h1>
 
-<p id="message"></p><br>
-
-
-<p id="player"></p>
-<button id="deletePlayer" type="button" onclick="deletePlayer()">Delete associated player</button><br>
+    <p id="message"></p><br>
 
 
-<label id="label1" for="nome">nome</label>
-<input type="text" name="nome" id="nome">
-<label id="label2" for="cognome">cognome</label>
-<input type="text" name="cognome" id="cognome">
-<button id="postplayer" type="button" onclick="postPlayer()">Crea giocatore</button><br>
+    <p id="player"></p>
+    <button id="deletePlayer" type="button" onclick="deletePlayer()">Delete associated player</button><br>
 
-<hr>
-<button id="logout" type="button" onclick="logout()">Logout</button>
-<button id="home" type="button" onclick="home()">Home</button>
-<button id="delete" type="button" onclick="del()">Delete my profile</button>
 
-<p id="error"></p>
+    <label id="label1" for="nome">nome</label>
+    <input type="text" name="nome" id="nome">
+    <label id="label2" for="cognome">cognome</label>
+    <input type="text" name="cognome" id="cognome">
+    <button id="postplayer" type="button" onclick="postPlayer()">Crea giocatore</button><br>
 
-<script>
-    const token = "<%= req.session.token %>"
-    if(token == ''){
+    <hr>
+    <button id="logout" type="button" onclick="logout()">Logout</button>
+    <button id="home" type="button" onclick="home()">Home</button>
+    <button id="delete" type="button" onclick="del()">Delete my profile</button>
 
-        window.location.href = '/login'
-    }
+    <p id="error"></p>
 
-    fetch('/api/v2/users/me', {
+    <script>
+        const token = "<%= req.session.token %>"
+        if (token == '') {
 
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'x-access-token': token}
-    })
-    .then(async (resp) => {
-        try{
-            json = await resp.json()
-        } catch (error){
-            console.log(error)
+            window.location.href = '/login'
         }
-        if(resp.status == 200){
-            document.getElementById("message").innerText = "USER: " + JSON.stringify(json)
-        } else {
-            document.getElementById("message").innerText = json.error
-        }
-    })
-    .catch( error => console.error(error) )
-    
-
-    function getPlayer(){
-        fetch('/api/v2/players/me', {
-
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'x-access-token': token}
-    })
-    .then(async (resp) => {
-        try{
-            json = await resp.json()
-        } catch (error){
-            console.log(error)
-        }
-        if(resp.status == 200){
-            document.getElementById("player").innerText = "PLAYER: " + JSON.stringify(json)
-            document.getElementById("nome").style.display = "none"
-            document.getElementById("cognome").style.display = "none"
-            document.getElementById("postplayer").style.display = "none"
-            document.getElementById("label1").style.display = "none"
-            document.getElementById("label2").style.display = "none"
-
-            document.getElementById("deletePlayer").style.display = "inline"
-
-        } else {
-            document.getElementById("player").innerText = json.error
-            document.getElementById("nome").style.display = "inline"
-            document.getElementById("cognome").style.display = "inline"
-            document.getElementById("postplayer").style.display = "inline"
-            document.getElementById("label1").style.display = "inline"
-            document.getElementById("label2").style.display = "inline"
-
-            document.getElementById("deletePlayer").style.display = "none"
-        }
-    })
-    .catch( error => console.error(error) )
-    }
-    getPlayer()
-    function logout(){
-        fetch('/login', {
-
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json'}
-        })
-        .then(resp => {
-
-            window.location.href = '/'
-
-        })
-        .catch( error => console.error(error) )
-    }
-
-    function del(){
 
         fetch('/api/v2/users/me', {
 
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json', 'x-access-token': token}
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json', 'x-access-token': token }
         })
-        .then(async (resp) => {
-            try{
-                json = await resp.json()
-            } catch (error){
-                console.log(error)
-            }
-            if(resp.status == 204){
-                logout()
-
-                window.location.href = "/"
-
-            } else {
-                document.getElementById("error").innerText = json.error
-            }
-        })
-        .catch( error => console.error(error) )
-    }
-
-    function home(){
-
-        window.location.href = "/"
-    }
-
-    function postPlayer(){
-        fetch('/api/v2/players', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                token: token,
-                name: document.getElementById("nome").value,
-                surname: document.getElementById("cognome").value
+            .then(async (resp) => {
+                try {
+                    json = await resp.json()
+                } catch (error) {
+                    console.log(error)
+                }
+                if (resp.status == 200) {
+                    document.getElementById("message").innerText = "USER: " + JSON.stringify(json)
+                } else {
+                    document.getElementById("message").innerText = json.error
+                }
             })
-        })
-        .then(async resp => {
-            try {
-                json = await resp.json()
-            } catch (error) {
-                console.log(error)
-            }
-            if(resp.status == 201){
-                getPlayer()
-            } else {
-                document.getElementById("player").innerText = json.error
-            }
-        })
-        .catch( error => console.log(error))
-    }
+            .catch(error => console.error(error))
 
-    function deletePlayer(){
-        fetch('/api/v2/players/me', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json', 'x-access-token': token}
-        })
-        .then(async resp => {
-            try {
-                json = await resp.json()
-            } catch (error) {
-                console.log(error)
-            }
-            if(resp.status == 204){
-                getPlayer()
-            } else {
-                document.getElementById("player").innerText = json.error
-            }
-        })
-        .catch( error => console.log(error))
 
-    }
+        function getPlayer() {
+            fetch('/api/v2/players/me', {
 
-</script>
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json', 'x-access-token': token }
+            })
+                .then(async (resp) => {
+                    try {
+                        json = await resp.json()
+                    } catch (error) {
+                        console.log(error)
+                    }
+                    if (resp.status == 200) {
+                        document.getElementById("player").innerText = "PLAYER: " + JSON.stringify(json)
+                        document.getElementById("nome").style.display = "none"
+                        document.getElementById("cognome").style.display = "none"
+                        document.getElementById("postplayer").style.display = "none"
+                        document.getElementById("label1").style.display = "none"
+                        document.getElementById("label2").style.display = "none"
+
+                        document.getElementById("deletePlayer").style.display = "inline"
+
+                    } else {
+                        document.getElementById("player").innerText = json.error
+                        document.getElementById("nome").style.display = "inline"
+                        document.getElementById("cognome").style.display = "inline"
+                        document.getElementById("postplayer").style.display = "inline"
+                        document.getElementById("label1").style.display = "inline"
+                        document.getElementById("label2").style.display = "inline"
+
+                        document.getElementById("deletePlayer").style.display = "none"
+                    }
+                })
+                .catch(error => console.error(error))
+        }
+        getPlayer()
+        function logout() {
+            fetch('/login', {
+
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(resp => {
+
+                    window.location.href = '/'
+
+                })
+                .catch(error => console.error(error))
+        }
+
+        function del() {
+
+            fetch('/api/v2/users/me', {
+
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json', 'x-access-token': token }
+            })
+                .then(async (resp) => {
+                    try {
+                        json = await resp.json()
+                    } catch (error) {
+                        console.log(error)
+                    }
+                    if (resp.status == 204) {
+                        logout()
+
+                        window.location.href = "/"
+
+                    } else {
+                        document.getElementById("error").innerText = json.error
+                    }
+                })
+                .catch(error => console.error(error))
+        }
+
+        function home() {
+
+            window.location.href = "/"
+        }
+
+        function postPlayer() {
+            fetch('/api/v2/players', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: token,
+                    name: document.getElementById("nome").value,
+                    surname: document.getElementById("cognome").value
+                })
+            })
+                .then(async resp => {
+                    try {
+                        json = await resp.json()
+                    } catch (error) {
+                        console.log(error)
+                    }
+                    if (resp.status == 201) {
+                        getPlayer()
+                    } else {
+                        document.getElementById("player").innerText = json.error
+                    }
+                })
+                .catch(error => console.log(error))
+        }
+
+        function deletePlayer() {
+            fetch('/api/v2/players/me', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json', 'x-access-token': token }
+            })
+                .then(async resp => {
+                    try {
+                        json = await resp.json()
+                    } catch (error) {
+                        console.log(error)
+                    }
+                    if (resp.status == 204) {
+                        getPlayer()
+                    } else {
+                        document.getElementById("player").innerText = json.error
+                    }
+                })
+                .catch(error => console.log(error))
+
+        }
+
+    </script>
 
 </body>
+
 </html>
