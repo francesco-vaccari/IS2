@@ -19,11 +19,10 @@
     "ejs": "^3.1.8",
     "express": "^4.18.1",
     "express-session": "^1.17.3",
-
     "jest": "^28.1.1",
-
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.3.4",
+    "node": "^17.7.2",
     "node-fetch": "^3.2.5",
     "url": "^0.11.0"
   },
