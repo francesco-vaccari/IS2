@@ -7,7 +7,7 @@ const app = express()
 const session = require('express-session')
 
 
-const port = process.env.PORT //|| 8080
+const port = process.env.PORT || 8080
 
 
 app.use(express.static('public'))
