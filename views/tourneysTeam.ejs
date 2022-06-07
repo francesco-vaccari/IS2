@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+    <h1>Team</h1>
+
+    <p id="message"></p>
+
+    <button id="home" type="button" onclick="home()">Back</button>
+
+    <script>
+        const token = "<%= req.session.token %>"
+        const name = "<%= name %>"
+        const nameTeam = "<%= nameTeam %>"
+        if (token == '') {
+            window.location.href = '/login'
+        }
+
+        fetch('/api/v2/tourneys/' + name + '/' + nameTeam, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json', 'x-access-token': token }
+        })
+            .then(async (resp) => {
+                try {
+                    json = await resp.json()
+                } catch (error) {
+                    console.log(error)
+                }
+                if (resp.status == 200) {
+                    document.getElementById("message").innerText = JSON.stringify(json)
+                } else {
+                    document.getElementById("message").innerText = json.error
+                }
+            })
+            .catch(error => console.error(error))
+
+        function home() {
+            window.location.href = "/tourneys/" + name
+        }
+    </script>
+
+</body>
+
+</html>

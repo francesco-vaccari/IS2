@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+    <h1>Create new tourney</h1>
+
+    <label for="noame">Name</label>
+    <input type="text" name="name" id="name"><br>
+    <label for="format">Format</label>
+    <input type="text" name="format" id="format"><br>
+    <label for="startingDate">Starting date</label>
+    <input type="date" name="startingDate" id="startingDate"><br>
+    <label for="endingDate">Ending date</label>
+    <input type="date" name="endingDate" id="endingDate"><br>
+
+    <label for="teams">Add teams:</label>
+    <input type="text" name="teams" id="teams">
+    <input type="submit" value="add team" onclick="addTeam()"><br>
+    <ol id="list"></ol>
+
+    <input type="submit" value="Crea Torneo" onclick="crea()">
+
+    <p id="error"></p>
+
+    <button type="button" onclick="home()">Home</button>
+
+    <script>
+        const token = "<%= req.session.token %>"
+        if (token == '') {
+
+            window.location.href = '/login'
+
+        }
+
+        teams = []
+        function addTeam() {
+            team = document.getElementById("teams").value
+            document.getElementById("teams").value = ""
+            teams.push(team)
+            document.getElementById("list").innerHTML = document.getElementById("list").innerHTML + "<li>" + team + "</li>"
+        }
+
+
+        function crea() {
+
+            fetch('/api/v2/tourneys', {
+
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: token,
+                    name: document.getElementById("name").value,
+                    format: document.getElementById("format").value,
+                    startingDate: document.getElementById("startingDate").value,
+                    endingDate: document.getElementById("endingDate").value,
+                    teams: teams
+                })
+            })
+                .then(async (resp) => {
+                    try {
+                        json = await resp.json()
+                    } catch (error) {
+                        console.log(error)
+                    }
+                    if (resp.status == 201) {
+
+                        window.location.href = "/tourneys/" + document.getElementById("name").value
+
+                    } else {
+                        document.getElementById("error").innerText = json.error
+                    }
+                })
+                .catch(error => console.error(error))
+        }
+
+        function home() {
+
+            window.location.href = "/"
+
+        }
+    </script>
+
+</body>
+
+</html>
