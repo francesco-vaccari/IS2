@@ -6,6 +6,7 @@ require('dotenv/config')
 const app = express()
 const session = require('express-session')
 
+const port = process.env.PORT || 3000
 
 app.use(express.static('public'))
 app.use(express.urlencoded( { extended : true }))
@@ -16,11 +17,6 @@ app.use(session({
     resave: false,
     saveUninitialized: false
 }))
-
-mongoose.connect(process.env.DB_CONNECTION, () => {
-    console.log('Connesso al database: ' + process.env.DB_CONNECTION)
-})
-
 
 app.set('view engine', 'ejs');
 
@@ -67,5 +63,16 @@ app.use('/api/v2/players', players)
 
 ///////////////////////////////////////////////
 
+app.locals.db = mongoose.connect(process.env.DB_CONNECTION, {useNewUrlParser: true, useUnifiedTopology: true})
+.then ( () => {
+    
+    console.log("Connected to Database");
 
-app.listen(3000)
+    if(process.env.NODE_ENV !== 'test'){
+        app.listen(port, () => {
+            console.log(`Server listening on port ${port}`);
+        });
+    }
+});
+
+module.exports = app
