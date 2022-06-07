@@ -1,47 +1,42 @@
 <!DOCTYPE html>
 <html>
+
 <body>
 
-<h1>HOME</h1>
+    <h1>HOME</h1>
 
-<button id="crea" type="button" onclick="crea()">Creazione Torneo</button>
-<button id="profile" type="button" onclick="profile()">Profile</button>
+    <button id="crea" type="button" onclick="crea()">Creazione Torneo</button>
+    <button id="profile" type="button" onclick="profile()">Profile</button>
 
-<ul id="list"></ul>
-
-
+    <ul id="list"></ul>
 
 
-<script>
-    const token = "<%= req.session.token %>"
 
-    if(token == ''){
-        window.location.href = '/login'
-    }
 
-    <%
-    for(counter in tornei){
-        %>
-        document.getElementById("list").innerHTML = document.getElementById("list").innerHTML + 
-        `<li><button type='submit' onclick='window.location.href = "/tourneys/<%= tornei[counter].name %>"'><%= tornei[counter].name %></button></li>`
-    <%}
-    %>
+    <script>
+        const token = "<%= req.session.token %>"
 
-    function crea(){
-        window.location.href = "/createTourney"
-    }
+        if (token == '') {
+            window.location.href = '/login'
+        }
 
-    function profile(){
-        window.location.href = "/profile"
+    <%for (counter in tornei) {%>document.getElementById("list").innerHTML = document.getElementById("list").innerHTML + `<li><button type='submit' onclick='window.location.href = "/tourneys/<%= tornei[counter].name %>"'><%= tornei[counter].name %></button></li>`<%}%>
 
-    }
+            function crea() {
+                window.location.href = "/createTourney"
+            }
 
-    function profile(){
-        window.location.href = "../profile"
-    }
+        function profile() {
+            window.location.href = "/profile"
 
-</script>
+        }
+
+        function profile() {
+            window.location.href = "../profile"
+        }
+
+    </script>
 
 </body>
-</html>
 
+</html>

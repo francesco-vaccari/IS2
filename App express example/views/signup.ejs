@@ -1,56 +1,57 @@
 <!DOCTYPE html>
 <html>
+
 <body>
 
-<h1>SIGNUP</h1>
+    <h1>SIGNUP</h1>
 
-<label for="username">username</label>
-<input type="text" id="username" name="usernmae">
-<label for="password">password</label>
-<input type="password" id="password" name="password">
-<input type="submit" value="submit" onclick="signup()">
-
-
-<br>
-<button type="button" onclick="login()">Login</button>
+    <label for="username">username</label>
+    <input type="text" id="username" name="usernmae">
+    <label for="password">password</label>
+    <input type="password" id="password" name="password">
+    <input type="submit" value="submit" onclick="signup()">
 
 
-<p id="error"></p>
+    <br>
+    <button type="button" onclick="login()">Login</button>
 
-<script>
-    function signup(){
-        fetch('/api/v2/users', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                username: document.getElementById("username").value,
-                password: document.getElementById("password").value
+
+    <p id="error"></p>
+
+    <script>
+        function signup() {
+            fetch('/api/v2/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: document.getElementById("username").value,
+                    password: document.getElementById("password").value
+                })
             })
-        })
-        .then(async resp => {
-            try {
-                json = await resp.json()
-            } catch (error){
-                console.log(error)
-            }
-            if(resp.status == 201){
+                .then(async resp => {
+                    try {
+                        json = await resp.json()
+                    } catch (error) {
+                        console.log(error)
+                    }
+                    if (resp.status == 201) {
 
-                window.location.href = "/login"
+                        window.location.href = "/login"
 
-            } else {
-                document.getElementById("error").innerText = json.error
-            }
-        })
-        .catch( error => console.log(error))
-    }
+                    } else {
+                        document.getElementById("error").innerText = json.error
+                    }
+                })
+                .catch(error => console.log(error))
+        }
 
 
-    function login(){
-        window.location.href = "/login"
+        function login() {
+            window.location.href = "/login"
 
-    }
-</script>
+        }
+    </script>
 
 </body>
-</html>
 
+</html>
