@@ -4,18 +4,19 @@ const { isNull, isNullOrUndefined } = require('url/util')
 const Player = require('../../models/Player')
 const User = require('../../models/User')
 
+
 router.get('/me', (req, res) => {
     User.findOne({ username: req.loggedUser.username }, (err, result) => {
         if(isNull(result)){
             res.status(404).json({ error: "giocatore non trovato" })
             return
         } else {
-            if (result.playerAssigned == "true") {
+            if(result.playerAssigned == "true"){
                 Player.findOne({ _id: result.player }, (err, result) => {
-                    if (isNull(result)) {
-                        res.status(500).json({ error: "server error" })
+                    if(isNull(result)){
+                        res.status(500).json({ error: "server error"})
                     } else {
-                        res.status(200).json({ name: result.name, surname: result.surname })
+                        res.status(200).json({ name: result.name, surname: result.surname})
                     }
                 })
             } else {
@@ -25,6 +26,7 @@ router.get('/me', (req, res) => {
         }
     })
 })
+
 
 router.post('/', async (req, res) => {
     if(!validatePost(req)){
@@ -80,11 +82,11 @@ router.delete('/me', async (req, res) => {
                 res.status(404).json({error: "utente non trovato"})
                 return
             }
-            if (result.playerAssigned == "false") {
+            if(result.playerAssigned == "false"){
                 res.status(400).json({ error: "l'utente inserito non è associato ad alcun giocatore" })
                 return
             }
-            if (result.playerAssigned == "true") {
+            if(result.playerAssigned == "true"){
                 Player.deleteOne({ _id: result.player }, (err, result) => {
                     User.updateOne({ username: req.loggedUser.username, password: user.password }, { playerAssigned: "false" }, (err, result) => {
                         res.status(204).send()
@@ -95,5 +97,6 @@ router.delete('/me', async (req, res) => {
         })
     }
 })
+
 
 module.exports = router

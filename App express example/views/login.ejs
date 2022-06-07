@@ -1,22 +1,54 @@
 <!DOCTYPE html>
 <html>
-
 <body>
 
-    <h1>LOGIN</h1>
+<h1>LOGIN</h1>
 
-<form action='/login' method='POST'>
-    <label for="username">username</label>
-    <input type="text" name="username" id="username">
-    <label for="password">password</label>
-    <input type="password" id="password" name="password">
-    <input type="submit" value="submit">
-</form>
+<label for="username">username</label>
+<input type="text" name="username" id="username">
+<label for="password">password</label>
+<input type="password" id="password" name="password">
+<input type="submit" value="login" onclick="login()">
+
+<p id="message"></p>
+
+<button type="button" onclick="home()">Home</button>
 
 <script>
-    
+    function login(){
+        fetch('../api/v2/authentication', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                username: document.getElementById("username").value,
+                password: document.getElementById("password").value
+            })
+        })
+        .then(async resp => {
+            json = await resp.json()
+            if(json.success){
+                fetch('../login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        token: json.token
+                    })
+                })
+                .then((resp) => {
+                    window.location.href = "../"
+                })
+                .catch( error => console.error(error) )
+            } else {
+                document.getElementById("message").innerText = "Login failed, try again"
+            }
+        })
+        .catch( error => console.error(error) )
+    }
+
+    function home(){
+        window.location.href = "../"
+    }
 </script>
 
 </body>
-
 </html>

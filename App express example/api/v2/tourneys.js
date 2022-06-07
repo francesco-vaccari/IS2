@@ -8,6 +8,7 @@ const Player = require('../../models/Player')
 const User = require('../../models/User')
 const Game = require('../../models/Game')
 
+
 router.post('/', async function (req, res) {
     if(!validatePost(req)) {
       res.status(400).json({ error: "errore nei dati inseriti" })
@@ -34,6 +35,7 @@ router.post('/', async function (req, res) {
           torneo.save()
             .then( async data => {
               for (counter in req.body.teams) {
+                  if(req.body.teams[counter] == ""){req.body.teams[counter] = "undefined"}
                 let item = req.body.teams[counter]
                 let team = new Team({
                   name: item,
@@ -127,10 +129,10 @@ router.get('/:nameTourney/:nameTeam', (req, res) => {
                     }
                 }
             })
-            return
         }
     })
 })
+
 
 router.get('/:name', (req, res) => {
     Tourney.findOne({ name: req.params.name }, (err, result) => {
@@ -180,6 +182,7 @@ router.get('/:name', (req, res) => {
         }
     })
 })
+
 
 router.put('/:name/:nameTeam', async function(req, res) { //API per aggiungere giocatore al team di un torneo specifico
     let teamId = "";

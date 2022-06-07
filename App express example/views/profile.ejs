@@ -1,21 +1,118 @@
 <!DOCTYPE html>
 <html>
-
 <body>
 
-    <h1>SIGNUP</h1>
+<h1>Profile</h1>
 
-    <p>Ciao <%= username %>
-    </p>
+<p id="message"></p><br>
 
-    <button type="button" onclick="home()">Torna alla Home</button>
+<p id="player"></p><br>
+<label id="label1" for="nome">nome</label>
+<input type="text" name="nome" id="nome">
+<label id="label2" for="cognome">cognome</label>
+<input type="text" name="cognome" id="cognome">
+<button id="postplayer" type="button" onclick="postPlayer()">Crea giocatore</button><br>
 
-    <script>
-        function home() {
-            window.location.assign("/")
+<hr>
+<button id="logout" type="button" onclick="logout()">Logout</button>
+<button id="home" type="button" onclick="home()">Home</button>
+<button id="delete" type="button" onclick="del()">Delete my profile</button>
+
+<p id="error"></p>
+
+<script>
+    const token = "<%= req.session.token %>"
+    if(token == ''){
+        window.location.href = '../'
+    }
+
+    fetch('../api/v2/users/me', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 'x-access-token': token}
+    })
+    .then(async (resp) => {
+        try{
+            json = await resp.json()
+        } catch (error){
+            console.log(error)
         }
-    </script>
+        if(resp.status == 200){
+            document.getElementById("message").innerText = "USER: " + JSON.stringify(json)
+        } else {
+            document.getElementById("message").innerText = json.error
+        }
+    })
+    .catch( error => console.error(error) )
+    
+    fetch('../api/v2/players/me', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 'x-access-token': token}
+    })
+    .then(async (resp) => {
+        try{
+            json = await resp.json()
+        } catch (error){
+            console.log(error)
+        }
+        if(resp.status == 200){
+            document.getElementById("player").innerText = "PLAYER: " + JSON.stringify(json)
+            document.getElementById("nome").style.display = "none"
+            document.getElementById("cognome").style.display = "none"
+            document.getElementById("postplayer").style.display = "none"
+            document.getElementById("label1").style.display = "none"
+            document.getElementById("label2").style.display = "none"
+        } else {
+            document.getElementById("player").innerText = json.error
+            document.getElementById("nome").style.display = "inline"
+            document.getElementById("cognome").style.display = "inline"
+            document.getElementById("postplayer").style.display = "inline"
+            document.getElementById("label1").style.display = "inline"
+            document.getElementById("label2").style.display = "inline"
+        }
+    })
+    .catch( error => console.error(error) )
+
+    function logout(){
+        fetch('../login', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json'}
+        })
+        .then(resp => {
+            window.location.href = '../'
+        })
+        .catch( error => console.error(error) )
+    }
+
+    function del(){
+        fetch('../api/v2/users/me', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json', 'x-access-token': token}
+        })
+        .then(async (resp) => {
+            try{
+                json = await resp.json()
+            } catch (error){
+                console.log(error)
+            }
+            if(resp.status == 204){
+                logout()
+                window.location.href = "../"
+            } else {
+                document.getElementById("error").innerText = json.error
+            }
+        })
+        .catch( error => console.error(error) )
+    }
+
+    function home(){
+        window.location.href = "../"
+    }
+
+    function postPlayer(){
+        console.log("da implementare post per player")
+    }
+
+</script>
 
 </body>
-
 </html>

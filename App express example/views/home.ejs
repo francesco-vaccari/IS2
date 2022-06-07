@@ -1,28 +1,53 @@
 <!DOCTYPE html>
 <html>
-
 <body>
 
-    <h1>HOME</h1>
+<h1>HOME</h1>
+<button id="login" type="button" onclick="login()">Login</button>
+<button id="signup" type="button" onclick="signup()">Signup</button>
+<button id="crea" type="button" onclick="crea()">Creazione Torneo</button>
+<button id="profile" type="button" onclick="profile()">Profile</button>
 
-    <button type="button" onclick="login()">Login</button>
-    <button type="button" onclick="signup()">Signup</button>
-    <button type="button" onclick="crea()">Creazione Torneo</button>
+<p id="token"></p>
 
-    <script>
-        function login() {
-            window.location.assign("/login") //non so se assign è giusto
-        }
+<ul>
+    da fare che mostra la lista di tutti i tornei presenti nel database e li posso vedee facendo get /api/v2/tourneys/name
+</ul>
 
-        function signup() {
-            window.location.assign("/signup") //non so se assign è giusto
-        }
 
-        function crea() {
-            window.location.assign("/creazioneTorneo") //non so se assign è giusto
-        }
-    </script>
+<script>
+    const token = "<%= req.session.token %>"
+    document.getElementById("token").innerText = "Token: " + token
+    if(token == ''){
+        document.getElementById("crea").style.display = "none"
+        document.getElementById("login").style.display = "inline"
+        document.getElementById("signup").style.display = "inline"
+        document.getElementById("profile").style.display = "none"
+    } else {
+        document.getElementById("crea").style.display = "inline"
+        document.getElementById("login").style.display = "none"
+        document.getElementById("signup").style.display = "none"
+        document.getElementById("profile").style.display = "inline"
+    }
+
+    function login(){
+        window.location.href = "../login"
+    }
+
+    function signup(){
+        window.location.href = "../signup"
+    }
+
+    function crea(){
+        window.location.href = "../createTourney"
+    }
+
+    function profile(){
+        window.location.href = "../profile"
+    }
+
+</script>
 
 </body>
-
 </html>
+
