@@ -4,7 +4,28 @@
 
 <h1>Tourneys</h1>
 
-<p id="message"></p>
+
+<p id="message"></p><br>
+
+<div id="iscrizione">
+    <p>Vuoi iscriverti ad un team?</p>
+    <select id="teams"></select>
+    <button type="button" id="iscriviti" onclick="iscriviti()">Iscritivi</button>
+    <p id="errorIscriviti"></p>
+</div><br>
+
+<hr>
+
+<div>
+    <ul id="list"></ul>
+</div>
+
+<hr>
+
+<button type="button" id="deleteTourney" onclick="deleteTourney()">Delete Tourney</button>
+
+<p id="error"></p>
+
 
 <button type="button" onclick="home()">Home</button>
 
@@ -12,7 +33,9 @@
     const token = "<%= req.session.token %>"
     const name = "<%= name %>"
     if(token == ''){
-        window.location.href = '../'
+
+        window.location.href = '/login'
+
     }
 
     fetch('/api/v2/tourneys/' + name, {
@@ -27,14 +50,71 @@
         }
         if(resp.status == 200){
             document.getElementById("message").innerText = JSON.stringify(json)
+
+            document.getElementById("deleteTourney").style.display = "inline"
+            updateTeams(json.teams)
         } else {
             document.getElementById("message").innerText = json.error
+            document.getElementById("deleteTourney").style.display = "none"
+
         }
     })
     .catch( error => console.error(error) )
 
+
+    function updateTeams(teams){
+        for(counter in teams){
+            document.getElementById("teams").innerHTML = document.getElementById("teams").innerHTML + "<option value=" + teams[counter] + ">" + teams[counter] + "</option>"
+        }
+        for(counter in teams){
+            document.getElementById("list").innerHTML = document.getElementById("list").innerHTML + "<li>" + teams[counter] + " <button type='submit' onclick= 'window.location.href = `/tourneys/" + name + "/" + teams[counter] + "`'>vai</button></li>"
+        }
+    }
+
     function home(){
-        window.location.href = "../"
+        window.location.href = "/"
+    }
+
+    function deleteTourney(){
+        fetch('/api/v2/tourneys/' + name, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', 'x-access-token': token}
+    })
+    .then(async (resp) => {
+        try{
+            json = await resp.json()
+        } catch (error){
+            console.log(error)
+        }
+        if(resp.status == 204){
+            window.location.href = '/'
+        } else {
+            document.getElementById("error").innerText = json.error
+        }
+    })
+    .catch( error => console.error(error) )
+    }
+
+    function iscriviti(){
+        team = document.getElementById("teams").value
+        fetch('/api/v2/tourneys/' + name + '/' + team, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'x-access-token': token}
+        })
+        .then(async (resp) => {
+            try{
+                json = await resp.json()
+            } catch (error){
+                console.log(error)
+            }
+            if(resp.status == 200){
+                document.getElementById("errorIscriviti").innerText = "Iscrizione effettuata!"
+            } else {
+                document.getElementById("errorIscriviti").innerText = json.error
+            }
+        })
+        .catch( error => console.error(error) )
+
     }
 </script>
 

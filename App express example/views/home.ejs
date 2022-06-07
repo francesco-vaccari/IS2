@@ -3,43 +3,37 @@
 <body>
 
 <h1>HOME</h1>
-<button id="login" type="button" onclick="login()">Login</button>
-<button id="signup" type="button" onclick="signup()">Signup</button>
+
 <button id="crea" type="button" onclick="crea()">Creazione Torneo</button>
 <button id="profile" type="button" onclick="profile()">Profile</button>
 
-<p id="token"></p>
+<ul id="list"></ul>
 
-<ul>
-    da fare che mostra la lista di tutti i tornei presenti nel database e li posso vedee facendo get /api/v2/tourneys/name
-</ul>
+
 
 
 <script>
     const token = "<%= req.session.token %>"
-    document.getElementById("token").innerText = "Token: " + token
+
     if(token == ''){
-        document.getElementById("crea").style.display = "none"
-        document.getElementById("login").style.display = "inline"
-        document.getElementById("signup").style.display = "inline"
-        document.getElementById("profile").style.display = "none"
-    } else {
-        document.getElementById("crea").style.display = "inline"
-        document.getElementById("login").style.display = "none"
-        document.getElementById("signup").style.display = "none"
-        document.getElementById("profile").style.display = "inline"
+        window.location.href = '/login'
     }
 
-    function login(){
-        window.location.href = "../login"
-    }
-
-    function signup(){
-        window.location.href = "../signup"
-    }
+    <%
+    for(counter in tornei){
+        %>
+        document.getElementById("list").innerHTML = document.getElementById("list").innerHTML + 
+        `<li><button type='submit' onclick='window.location.href = "/tourneys/<%= tornei[counter].name %>"'><%= tornei[counter].name %></button></li>`
+    <%}
+    %>
 
     function crea(){
-        window.location.href = "../createTourney"
+        window.location.href = "/createTourney"
+    }
+
+    function profile(){
+        window.location.href = "/profile"
+
     }
 
     function profile(){

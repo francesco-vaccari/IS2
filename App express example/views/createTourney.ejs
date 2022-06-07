@@ -27,7 +27,9 @@
 <script>
     const token = "<%= req.session.token %>"
     if(token == ''){
-        window.location.href = '../'
+
+        window.location.href = '/login'
+
     }
 
     teams = []
@@ -40,7 +42,9 @@
 
     
     function crea(){
-        fetch('../api/v2/tourneys', {
+
+        fetch('/api/v2/tourneys', {
+
             method: 'POST',
             headers: { 'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -59,7 +63,9 @@
                 console.log(error)
             }
             if(resp.status == 201){
-                window.location.href = "./tourneys/" + document.getElementById("name").value
+
+                window.location.href = "/tourneys/" + document.getElementById("name").value
+
             } else {
                 document.getElementById("error").innerText = json.error
             }
@@ -68,7 +74,9 @@
     }
 
     function home(){
-        window.location.href = "../"
+
+        window.location.href = "/"
+
     }
 </script>
 

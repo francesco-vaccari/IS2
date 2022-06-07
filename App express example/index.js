@@ -6,7 +6,9 @@ require('dotenv/config')
 const app = express()
 const session = require('express-session')
 
+
 const port = process.env.PORT || 3000
+
 
 app.use(express.static('public'))
 app.use(express.urlencoded( { extended : true }))
@@ -18,11 +20,13 @@ app.use(session({
     saveUninitialized: false
 }))
 
+
 app.set('view engine', 'ejs');
 
 app.get('/', (req, res) => {
     res.render('home', { req: req })
 })
+
 
 
 //////////////TOKEN ROUTES////////////////////////////////

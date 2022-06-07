@@ -87,7 +87,7 @@ function validatePost(req) {
     let endingDate = new Date(req.body.endingDate)
     if (startingDate.toString() == "Invalid Date" || endingDate.toString() == "Invalid Date") { return false }
     if (Date.now() > endingDate.getTime() || startingDate.getTime() > endingDate.getTime()) { return false }
-    if (!Array.isArray(req.body.teams) || req.body.teams.length == 0) { return false }
+    if (!Array.isArray(req.body.teams) || req.body.teams.length < 2) { return false }
     return true
 }
 
@@ -294,7 +294,7 @@ router.delete('/:name', async function (req, res){
                         return
                     })
                 } else {
-                    res.status(400).json({ error: "credenziali errate" })
+                    res.status(400).json({ error: "Non sei autorizzato ad eliminare questo torneo" })
                     return
                 }
             }
